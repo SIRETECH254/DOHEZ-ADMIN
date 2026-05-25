@@ -208,8 +208,30 @@ export const paymentAPI = {
   // Get single payment details (Admin)
   getPaymentById: (paymentId: string) => api.get(`/api/payments/${paymentId}`),
 
-  // Pay product invoice
-  payProductInvoice: (payload: any) => api.post('/api/payments/pay', payload),
+  // Pay ticket invoices
+  payTicketInvoices: (data: { invoiceIds: string[], method: string, payerPhone: string }) => 
+    api.post('/api/payments/tickets/pay', data),
+
+  // Book laundry
+  bookLaundry: (payload: BookLaundryPayload) => api.post('/api/payments/laundries/book', payload),
+
+  // Pay laundry invoice
+  payLaundryInvoice: (payload: PayLaundryInvoicePayload) => api.post('/api/payments/laundries/pay', payload),
+
+  // Confirm appointment and initiate payment
+  confirmAppointment: (appointmentId: string, data: { method: string, payerPhone: string }) =>
+    api.post(`/api/payments/appointments/confirm/${appointmentId}`, data),
+
+  // Pay appointment invoice
+  payAppointmentInvoice: (data: { appointmentId: string, method: string, payerPhone: string }) =>
+    api.post('/api/payments/appointments/pay', data),
+
+  // Initiate payment for an invoice
+  payInvoice: (data: { invoiceId: string, method: string, amount: number, payerPhone: string }) =>
+    api.post('/api/payments/pay', data),
+
+  // M-Pesa webhook callback
+  mpesaWebhook: (data: any) => api.post('/api/payments/webhooks/mpesa', data),
 
   // Query M-Pesa status
   queryMpesaByCheckoutId: (checkoutId: string) => api.get(`/api/payments/mpesa/${checkoutId}`),
