@@ -27,10 +27,7 @@ import type {
   UpdateBreakPayload,
   // Ticket types
   UpdateTicketPayload,
-  // Payment types
-  IPayment,
   // Receipt types
-  IReceipt,
   PaginationParams,
   // Laundry types
   BookLaundryPayload,

@@ -8,12 +8,6 @@ import type {
   ForgotPasswordPayload,
   ResetPasswordPayload,
   RefreshTokenPayload,
-  AuthResponse,
-  VerifyOTPResponse,
-  ResendOTPResponse,
-  LoginResponse,
-  RefreshTokenResponse,
-  GetMeResponse,
 } from '../types/api.types';
 
 const DEFAULT_STALE_TIME = 1000 * 60 * 5;
@@ -21,7 +15,7 @@ const DEFAULT_GC_TIME = 1000 * 60 * 10;
 
 // Register
 export const useRegister = () => {
-  return useMutation<AuthResponse, Error, RegisterPayload>({
+  return useMutation({
     mutationFn: async (userData: RegisterPayload) => {
       const response = await authAPI.register(userData);
       return response.data.data;
@@ -39,7 +33,7 @@ export const useRegister = () => {
 
 // Verify OTP
 export const useVerifyOTP = () => {
-  return useMutation<VerifyOTPResponse, Error, VerifyOTPPayload>({
+  return useMutation({
     mutationFn: async (otpData: VerifyOTPPayload) => {
       const response = await authAPI.verifyOTP(otpData);
       return response.data.data;
@@ -57,7 +51,7 @@ export const useVerifyOTP = () => {
 
 // Resend OTP
 export const useResendOTP = () => {
-  return useMutation<ResendOTPResponse, Error, ResendOTPPayload>({
+  return useMutation({
     mutationFn: async (data: ResendOTPPayload) => {
       const response = await authAPI.resendOTP(data);
       return response.data.data;
@@ -77,7 +71,7 @@ export const useResendOTP = () => {
 export const useLogin = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<LoginResponse, Error, LoginPayload>({
+  return useMutation({
     mutationFn: async (credentials: LoginPayload) => {
       const response = await authAPI.login(credentials);
       return response.data.data;
@@ -98,7 +92,7 @@ export const useLogin = () => {
 export const useLogout = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<void, Error, void>({
+  return useMutation({
     mutationFn: async () => {
       await authAPI.logout();
     },
@@ -114,7 +108,7 @@ export const useLogout = () => {
 
 // Forgot Password
 export const useForgotPassword = () => {
-  return useMutation<{ success: boolean; message: string }, Error, ForgotPasswordPayload>({
+  return useMutation({
     mutationFn: async (data: ForgotPasswordPayload) => {
       const response = await authAPI.forgotPassword(data);
       return response.data;
@@ -130,8 +124,8 @@ export const useForgotPassword = () => {
 
 // Reset Password
 export const useResetPassword = () => {
-  return useMutation<{ success: boolean; message: string }, Error, { token: string; data: ResetPasswordPayload }>({
-    mutationFn: async ({ token, data }) => {
+  return useMutation({
+    mutationFn: async ({ token, data }: { token: string; data: ResetPasswordPayload }) => {
       const response = await authAPI.resetPassword(token, data);
       return response.data;
     },
@@ -146,7 +140,7 @@ export const useResetPassword = () => {
 
 // Refresh Token
 export const useRefreshToken = () => {
-  return useMutation<RefreshTokenResponse, Error, RefreshTokenPayload>({
+  return useMutation({
     mutationFn: async (data: RefreshTokenPayload) => {
       const response = await authAPI.refreshToken(data);
       return response.data.data;
@@ -159,7 +153,7 @@ export const useRefreshToken = () => {
 
 // Get Me
 export const useGetMe = () => {
-  return useQuery<GetMeResponse>({
+  return useQuery({
     queryKey: ['user', 'profile'],
     queryFn: async () => {
       const response = await authAPI.getMe();
@@ -169,3 +163,4 @@ export const useGetMe = () => {
     gcTime: DEFAULT_GC_TIME,
   });
 };
+

@@ -4,10 +4,35 @@
 export * from './useAuth';
 
 // User hooks
-export * from './useUsers';
+export {
+  useGetProfile,
+  useUpdateProfile,
+  useChangePassword,
+  useGetNotificationPreferences,
+  useUpdateNotificationPreferences,
+  useAdminCreateUser,
+  useGetStaff,
+  useGetAllUsers,
+  useGetUserById,
+  useUpdateUser,
+  useUpdateUserStatus,
+  useSetUserAdmin,
+  useGetUserRoles,
+  useDeleteUser,
+  useAssignRole,
+  useRemoveRole
+} from './useUsers';
 
 // Role hooks
-export * from './useRoles';
+export {
+  useGetAllRoles,
+  useGetCustomers as useGetCustomersByRole,
+  useGetRoleById,
+  useCreateRole,
+  useUpdateRole,
+  useDeleteRole,
+  useGetUsersByRole
+} from './useRoles';
 
 // Service hooks
 export * from './useServices';
@@ -22,7 +47,15 @@ export * from './useBreaks';
 export * from './useAvailability';
 
 // Payment hooks
-export * from './usePayments';
+export {
+  useGetPayments,
+  useGetPaymentById,
+  usePayTicketInvoices,
+  useConfirmAppointmentPayment,
+  usePayAppointmentInvoice,
+  usePayInvoice,
+  useQueryMpesaStatus
+} from './usePayments';
 
 // Laundry hooks
 export * from './useLaundries';

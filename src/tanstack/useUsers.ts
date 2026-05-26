@@ -9,10 +9,10 @@ import type {
   UpdateUserStatusPayload, 
   AssignRolePayload, 
   GetUsersParams,
-  GetCustomersParams,
-  GetStaffParams,
-  SetUserAdminPayload
+  GetCustomersParams 
 } from '../types/api.types';
+// Note: SetUserAdminPayload not in api.types currently, inferred as simple payload or string
+
 
 const DEFAULT_STALE_TIME = 1000 * 60 * 5;
 const DEFAULT_GC_TIME = 1000 * 60 * 10;
@@ -182,12 +182,12 @@ export const useUpdateUserStatus = () => {
 export const useSetUserAdmin = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ userId, data }: { userId: string; data: SetUserAdminPayload }) => {
-      const response = await userAPI.setUserAdmin(userId, data);
+    mutationFn: async (userId: string) => {
+      const response = await userAPI.setUserAdmin(userId);
       return response.data.data;
     },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['user', variables.userId] });
+    onSuccess: (_, userId) => {
+      queryClient.invalidateQueries({ queryKey: ['user', userId] });
     },
   });
 };

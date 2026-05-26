@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { receiptAPI } from '../api';
 
 const DEFAULT_STALE_TIME = 1000 * 60 * 5;
