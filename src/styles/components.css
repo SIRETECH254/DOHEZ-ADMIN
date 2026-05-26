@@ -1,0 +1,234 @@
+@layer components {
+    /* Buttons */
+    .btn {
+        @apply inline-flex items-center justify-center rounded-xl px-4 py-3 font-inter text-base font-semibold transition disabled:cursor-not-allowed;
+    }
+    
+    .btn-primary {
+        @apply inline-flex items-center justify-center rounded-xl bg-brand-primary px-4 py-3 font-inter text-base font-semibold text-white transition hover:bg-brand-primary-dark disabled:cursor-not-allowed disabled:bg-disabled;
+    }
+
+    .btn-secondary {
+        @apply inline-flex items-center justify-center rounded-xl bg-brand-secondary hover:bg-brand-secondary-dark  border  px-4 py-3 font-inter text-base font-semibold text-white transition disabled:cursor-not-allowed;
+    }
+
+    .btn-tertiary {
+        @apply inline-flex items-center justify-center rounded-xl bg-brand-tertiary hover:bg-brand-tertiary-dark border px-4 py-3 font-inter text-base font-semibold text-white transition disabled:cursor-not-allowed;
+    }
+
+    .btn-utility {
+        @apply inline-flex items-center justify-center rounded-xl border border-brand-primary text-brand-primary bg-white px-4 py-3 font-inter transition disabled:cursor-not-allowed;
+    }
+
+    .btn-ghost {
+        @apply inline-flex items-center justify-center rounded-xl bg-transparent px-4 py-3 font-inter text-base font-semibold text-brand-primary hover:bg-orange-50 transition disabled:cursor-not-allowed;
+    }
+
+
+    /* Forms */
+    .label {
+        @apply block font-inter text-sm font-semibold text-gray-700;
+    }
+
+    .input {
+        @apply block w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-base font-inter text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20;
+    }
+
+    .input-disabled {
+        @apply block w-full rounded-xl border border-gray-200 bg-gray-100 px-4 py-3 text-base font-inter text-gray-500 placeholder:text-gray-400;
+    }
+
+    .input-search {
+        @apply block w-full rounded-xl border border-gray-300 bg-white px-10 py-3 pr-3 text-sm font-inter text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20;
+    }
+
+    .input-select{
+        @apply  w-full rounded-xl border border-gray-300 bg-white px-10 py-3 pr-3 text-sm font-inter appearance-none text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20;
+    }
+
+    .input-password {
+        @apply block w-full rounded-xl border border-gray-300 bg-white px-4 py-3 pr-12 text-base font-inter text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20;
+    }
+
+    .input-toggle-icon {
+        @apply absolute right-3 top-3 text-slate-400 transition hover:text-slate-600;
+    }
+
+    /* Alerts */
+    .alert {
+        @apply rounded-lg px-3 py-2 text-sm font-inter;
+    }
+
+    .alert-success {
+        @apply rounded-lg bg-emerald-100 px-3 py-2 text-sm font-inter text-emerald-700;
+    }
+
+    .alert-error {
+        @apply rounded-lg bg-red-300 px-3 py-2 text-sm font-inter text-red-700;
+    }
+
+    .alert-info {
+        @apply rounded-lg bg-brand-tertiary/50 px-3 py-2 text-sm font-inter text-black;
+    }
+
+
+    /* Auth layout helpers */
+    .auth-page {
+        @apply min-h-screen w-full bg-white text-slate-900;
+    }
+
+    .auth-container {
+        @apply mx-auto flex min-h-screen w-full max-w-5xl flex-col items-center justify-center px-6 py-12;
+    }
+
+
+    .auth-header {
+        @apply text-center;
+    }
+
+    .auth-kicker {
+        @apply text-sm uppercase tracking-[0.2em] text-slate-400;
+    }
+
+    .auth-title {
+        @apply mt-3 text-3xl font-semibold text-slate-900;
+    }
+
+    .auth-subtitle {
+        @apply mt-2 text-sm text-slate-600;
+    }
+
+    .auth-form {
+        @apply mt-8 max-w-5xl space-y-5;
+    }
+
+    .auth-field {
+        @apply flex flex-col gap-2;
+    }
+
+    .auth-link {
+        @apply font-semibold text-brand-primary transition hover:text-brand-primary-dark;
+    }
+
+    .auth-footer {
+        @apply mt-6 text-center text-sm text-slate-500;
+    }
+
+    .auth-footer-strong {
+        @apply font-semibold text-slate-700;
+    }
+
+    .auth-checkbox {
+        @apply h-4 w-4 accent-brand-primary;
+    }
+
+    .auth-remember {
+        @apply flex items-center gap-2 text-slate-600;
+    }
+
+    .auth-actions {
+        @apply flex items-center justify-between text-sm;
+    }
+
+    .auth-button {
+        @apply w-full rounded-xl bg-brand-primary py-3 text-sm font-semibold text-white transition hover:bg-brand-primary-dark disabled:cursor-not-allowed disabled:bg-slate-300;
+    }
+
+    .auth-inline-message {
+        @apply rounded-xl border px-4 py-3 text-sm;
+    }
+
+    .auth-inline-message-success {
+        @apply rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700;
+    }
+
+    .auth-inline-message-error {
+        @apply rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700;
+    }
+
+    /* Picker / Select wrapper */
+    .input-select {
+        @apply rounded-lg border border-gray-300 bg-white px-2;
+    }
+
+    /* Date picker trigger button */
+    .input-date {
+        @apply w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-base font-inter text-gray-900 placeholder:text-gray-400;
+    }
+
+    /* MultiSelect dropdown */
+    .input-multiselect {
+        @apply w-full rounded-xl border border-gray-300 bg-white;
+    }
+
+    /* Rich text editor container */
+    .input-quill {
+        @apply w-full rounded-xl border border-gray-300 bg-white;
+    }
+
+    /* Image preview grid */
+    .image-preview-grid {
+        @apply mt-4 flex flex-wrap gap-4;
+    }
+
+    /* Individual image preview card */
+    .image-preview-item {
+        @apply rounded-lg border border-gray-200 bg-white p-2 shadow-sm;
+    }
+
+    /* Tables */
+    .table-container {
+        @apply overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm;
+    }
+
+    .table {
+        @apply w-full min-w-[800px];
+    }
+
+    .table-header {
+        @apply border-b border-gray-200 bg-gray-50;
+    }
+
+    .table-header-cell {
+        @apply whitespace-nowrap px-6 py-3 text-left text-sm font-semibold text-gray-700;
+    }
+
+    .table-header-cell-right {
+        @apply whitespace-nowrap px-6 py-3 text-right text-sm font-semibold text-gray-700;
+    }
+
+    .table-body {
+        @apply divide-y divide-gray-200 bg-white;
+    }
+
+    .table-row {
+        @apply transition hover:bg-gray-50;
+    }
+
+    .table-cell {
+        @apply px-6 py-4;
+    }
+
+    .table-cell-text {
+        @apply whitespace-nowrap px-6 py-4 text-sm text-gray-600;
+    }
+
+    .table-cell-center {
+        @apply px-6 py-4 text-center;
+    }
+
+    /* Table cell content helpers */
+    .table-cell-content {
+        @apply flex items-center gap-3;
+    }
+
+    /* Avatar in table */
+    .table-avatar {
+        @apply h-10 w-10 rounded-full object-cover;
+    }
+
+    .table-avatar-initials {
+        @apply flex h-10 w-10 items-center justify-center rounded-full bg-brand-primary text-sm font-semibold text-white;
+    }
+  }
+  
