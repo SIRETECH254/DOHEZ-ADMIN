@@ -5,6 +5,7 @@ import type { UpdateTicketPayload } from '../types/api.types';
 const DEFAULT_STALE_TIME = 1000 * 60 * 5;
 const DEFAULT_GC_TIME = 1000 * 60 * 10;
 
+// Get all tickets
 export const useGetTickets = (params?: any) => {
   return useQuery({
     queryKey: ['tickets', params],
@@ -17,6 +18,7 @@ export const useGetTickets = (params?: any) => {
   });
 };
 
+// Get single ticket
 export const useGetTicket = (ticketId: string) => {
   return useQuery({
     queryKey: ['ticket', ticketId],
@@ -30,24 +32,35 @@ export const useGetTicket = (ticketId: string) => {
   });
 };
 
+// Update ticket
 export const useUpdateTicket = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ ticketId, ticketData }: { ticketId: string; ticketData: UpdateTicketPayload }) =>
-      ticketAPI.updateTicket(ticketId, ticketData),
+    mutationFn: async ({ ticketId, ticketData }: { ticketId: string; ticketData: UpdateTicketPayload }) => {
+      const response = await ticketAPI.updateTicket(ticketId, ticketData);
+      return response.data.data;
+    },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['tickets'] });
       queryClient.invalidateQueries({ queryKey: ['ticket', variables.ticketId] });
+      console.log('Ticket updated successfully');
     },
+    onError: (error: any) => console.error('Error updating ticket:', error),
   });
 };
 
+// Delete ticket
 export const useDeleteTicket = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (ticketId: string) => ticketAPI.deleteTicket(ticketId),
+    mutationFn: async (ticketId: string) => {
+      const response = await ticketAPI.deleteTicket(ticketId);
+      return response.data.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tickets'] });
+      console.log('Ticket deleted successfully');
     },
+    onError: (error: any) => console.error('Error deleting ticket:', error),
   });
 };

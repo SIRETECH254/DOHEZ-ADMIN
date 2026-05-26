@@ -5,16 +5,23 @@ import type { CreatePackagingPayload, UpdatePackagingPayload } from '../types/ap
 const DEFAULT_STALE_TIME = 1000 * 60 * 5;
 const DEFAULT_GC_TIME = 1000 * 60 * 10;
 
+// Create packaging
 export const useCreatePackaging = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: CreatePackagingPayload) => packagingAPI.createPackaging(data),
+    mutationFn: async (data: CreatePackagingPayload) => {
+      const response = await packagingAPI.createPackaging(data);
+      return response.data.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['packaging'] });
+      console.log('Packaging created successfully');
     },
+    onError: (error: any) => console.error('Error creating packaging:', error),
   });
 };
 
+// Get packaging
 export const useGetPackaging = (params?: any) => {
   return useQuery({
     queryKey: ['packaging', params],
@@ -27,6 +34,7 @@ export const useGetPackaging = (params?: any) => {
   });
 };
 
+// Get packaging by ID
 export const useGetPackagingById = (id: string) => {
   return useQuery({
     queryKey: ['packaging', id],
@@ -40,34 +48,51 @@ export const useGetPackagingById = (id: string) => {
   });
 };
 
+// Update packaging
 export const useUpdatePackaging = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdatePackagingPayload }) =>
-      packagingAPI.updatePackaging(id, data),
+    mutationFn: async ({ id, data }: { id: string; data: UpdatePackagingPayload }) => {
+      const response = await packagingAPI.updatePackaging(id, data);
+      return response.data.data;
+    },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['packaging'] });
       queryClient.invalidateQueries({ queryKey: ['packaging', variables.id] });
+      console.log('Packaging updated successfully');
     },
+    onError: (error: any) => console.error('Error updating packaging:', error),
   });
 };
 
+// Delete packaging
 export const useDeletePackaging = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => packagingAPI.deletePackaging(id),
+    mutationFn: async (id: string) => {
+      const response = await packagingAPI.deletePackaging(id);
+      return response.data.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['packaging'] });
+      console.log('Packaging deleted successfully');
     },
+    onError: (error: any) => console.error('Error deleting packaging:', error),
   });
 };
 
+// Set default packaging
 export const useSetDefaultPackaging = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => packagingAPI.setDefaultPackaging(id),
+    mutationFn: async (id: string) => {
+      const response = await packagingAPI.setDefaultPackaging(id);
+      return response.data.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['packaging'] });
+      console.log('Default packaging set successfully');
     },
+    onError: (error: any) => console.error('Error setting default packaging:', error),
   });
 };

@@ -5,16 +5,23 @@ import type { CreateProductModifierPayload, UpdateProductModifierPayload } from 
 const DEFAULT_STALE_TIME = 1000 * 60 * 5;
 const DEFAULT_GC_TIME = 1000 * 60 * 10;
 
+// Create product modifier
 export const useCreateProductModifier = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: CreateProductModifierPayload) => productModifierAPI.createProductModifier(data),
+    mutationFn: async (data: CreateProductModifierPayload) => {
+      const response = await productModifierAPI.createProductModifier(data);
+      return response.data.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['productModifiers'] });
+      console.log('Product modifier created successfully');
     },
+    onError: (error: any) => console.error('Error creating product modifier:', error),
   });
 };
 
+// Get product modifiers
 export const useGetProductModifiers = () => {
   return useQuery({
     queryKey: ['productModifiers'],
@@ -27,6 +34,7 @@ export const useGetProductModifiers = () => {
   });
 };
 
+// Get product modifier by ID
 export const useGetProductModifierById = (id: string) => {
   return useQuery({
     queryKey: ['productModifier', id],
@@ -40,24 +48,35 @@ export const useGetProductModifierById = (id: string) => {
   });
 };
 
+// Update product modifier
 export const useUpdateProductModifier = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateProductModifierPayload }) =>
-      productModifierAPI.updateProductModifier(id, data),
+    mutationFn: async ({ id, data }: { id: string; data: UpdateProductModifierPayload }) => {
+      const response = await productModifierAPI.updateProductModifier(id, data);
+      return response.data.data;
+    },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['productModifiers'] });
       queryClient.invalidateQueries({ queryKey: ['productModifier', variables.id] });
+      console.log('Product modifier updated successfully');
     },
+    onError: (error: any) => console.error('Error updating product modifier:', error),
   });
 };
 
+// Delete product modifier
 export const useDeleteProductModifier = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => productModifierAPI.deleteProductModifier(id),
+    mutationFn: async (id: string) => {
+      const response = await productModifierAPI.deleteProductModifier(id);
+      return response.data.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['productModifiers'] });
+      console.log('Product modifier deleted successfully');
     },
+    onError: (error: any) => console.error('Error deleting product modifier:', error),
   });
 };

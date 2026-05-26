@@ -5,16 +5,23 @@ import type { CreateTaskPayload, UpdateTaskPayload, GetTasksParams } from '../ty
 const DEFAULT_STALE_TIME = 1000 * 60 * 5;
 const DEFAULT_GC_TIME = 1000 * 60 * 10;
 
+// Create task
 export const useCreateTask = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (taskData: CreateTaskPayload | FormData) => taskAPI.createTask(taskData),
+    mutationFn: async (taskData: CreateTaskPayload | FormData) => {
+      const response = await taskAPI.createTask(taskData);
+      return response.data.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      console.log('Task created successfully');
     },
+    onError: (error: any) => console.error('Error creating task:', error),
   });
 };
 
+// Get tasks
 export const useGetTasks = (params?: GetTasksParams) => {
   return useQuery({
     queryKey: ['tasks', params],
@@ -27,6 +34,7 @@ export const useGetTasks = (params?: GetTasksParams) => {
   });
 };
 
+// Get task by ID
 export const useGetTaskById = (taskId: string) => {
   return useQuery({
     queryKey: ['task', taskId],
@@ -40,24 +48,35 @@ export const useGetTaskById = (taskId: string) => {
   });
 };
 
+// Update task
 export const useUpdateTask = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ taskId, taskData }: { taskId: string; taskData: UpdateTaskPayload | FormData }) =>
-      taskAPI.updateTask(taskId, taskData),
+    mutationFn: async ({ taskId, taskData }: { taskId: string; taskData: UpdateTaskPayload | FormData }) => {
+      const response = await taskAPI.updateTask(taskId, taskData);
+      return response.data.data;
+    },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       queryClient.invalidateQueries({ queryKey: ['task', variables.taskId] });
+      console.log('Task updated successfully');
     },
+    onError: (error: any) => console.error('Error updating task:', error),
   });
 };
 
+// Delete task
 export const useDeleteTask = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (taskId: string) => taskAPI.deleteTask(taskId),
+    mutationFn: async (taskId: string) => {
+      const response = await taskAPI.deleteTask(taskId);
+      return response.data.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      console.log('Task deleted successfully');
     },
+    onError: (error: any) => console.error('Error deleting task:', error),
   });
 };

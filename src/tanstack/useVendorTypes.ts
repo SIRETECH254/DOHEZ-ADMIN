@@ -5,16 +5,23 @@ import type { CreateVendorTypePayload, UpdateVendorTypePayload, GetVendorTypesPa
 const DEFAULT_STALE_TIME = 1000 * 60 * 5;
 const DEFAULT_GC_TIME = 1000 * 60 * 10;
 
+// Create vendor type
 export const useCreateVendorType = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: CreateVendorTypePayload | FormData) => vendorTypeAPI.createVendorType(data),
+    mutationFn: async (data: CreateVendorTypePayload | FormData) => {
+      const response = await vendorTypeAPI.createVendorType(data);
+      return response.data.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vendorTypes'] });
+      console.log('Vendor type created successfully');
     },
+    onError: (error: any) => console.error('Error creating vendor type:', error),
   });
 };
 
+// Get vendor types
 export const useGetVendorTypes = (params?: GetVendorTypesParams) => {
   return useQuery({
     queryKey: ['vendorTypes', params],
@@ -27,6 +34,7 @@ export const useGetVendorTypes = (params?: GetVendorTypesParams) => {
   });
 };
 
+// Get vendor type by ID/Slug
 export const useGetVendorTypeById = (idOrSlug: string) => {
   return useQuery({
     queryKey: ['vendorType', idOrSlug],
@@ -40,24 +48,35 @@ export const useGetVendorTypeById = (idOrSlug: string) => {
   });
 };
 
+// Update vendor type
 export const useUpdateVendorType = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateVendorTypePayload | FormData }) =>
-      vendorTypeAPI.updateVendorType(id, data),
+    mutationFn: async ({ id, data }: { id: string; data: UpdateVendorTypePayload | FormData }) => {
+      const response = await vendorTypeAPI.updateVendorType(id, data);
+      return response.data.data;
+    },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['vendorTypes'] });
       queryClient.invalidateQueries({ queryKey: ['vendorType', variables.id] });
+      console.log('Vendor type updated successfully');
     },
+    onError: (error: any) => console.error('Error updating vendor type:', error),
   });
 };
 
+// Delete vendor type
 export const useDeleteVendorType = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => vendorTypeAPI.deleteVendorType(id),
+    mutationFn: async (id: string) => {
+      const response = await vendorTypeAPI.deleteVendorType(id);
+      return response.data.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vendorTypes'] });
+      console.log('Vendor type deleted successfully');
     },
+    onError: (error: any) => console.error('Error deleting vendor type:', error),
   });
 };

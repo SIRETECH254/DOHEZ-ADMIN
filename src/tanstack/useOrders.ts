@@ -5,16 +5,23 @@ import type { CreateOrderPayload, AdminCreateOrderPayload, UpdateOrderStatusPayl
 const DEFAULT_STALE_TIME = 1000 * 60 * 5;
 const DEFAULT_GC_TIME = 1000 * 60 * 10;
 
+// Create order
 export const useCreateOrder = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: CreateOrderPayload) => orderAPI.createOrder(data),
+    mutationFn: async (data: CreateOrderPayload) => {
+      const response = await orderAPI.createOrder(data);
+      return response.data.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
+      console.log('Order created successfully');
     },
+    onError: (error: any) => console.error('Error creating order:', error),
   });
 };
 
+// Get my orders
 export const useGetUserOrders = (params?: GetOrdersParams) => {
   return useQuery({
     queryKey: ['orders', 'my', params],
@@ -27,6 +34,7 @@ export const useGetUserOrders = (params?: GetOrdersParams) => {
   });
 };
 
+// Get order by ID
 export const useGetOrderById = (orderId: string) => {
   return useQuery({
     queryKey: ['order', orderId],
@@ -40,16 +48,23 @@ export const useGetOrderById = (orderId: string) => {
   });
 };
 
+// Admin create order
 export const useAdminCreateOrder = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: AdminCreateOrderPayload) => orderAPI.adminCreateOrder(data),
+    mutationFn: async (data: AdminCreateOrderPayload) => {
+      const response = await orderAPI.adminCreateOrder(data);
+      return response.data.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
+      console.log('Admin order created successfully');
     },
+    onError: (error: any) => console.error('Error creating order (admin):', error),
   });
 };
 
+// Get all orders (admin)
 export const useGetOrders = (params?: GetOrdersParams) => {
   return useQuery({
     queryKey: ['orders', params],
@@ -62,35 +77,52 @@ export const useGetOrders = (params?: GetOrdersParams) => {
   });
 };
 
+// Update order status
 export const useUpdateOrderStatus = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ orderId, data }: { orderId: string; data: UpdateOrderStatusPayload }) =>
-      orderAPI.updateOrderStatus(orderId, data),
+    mutationFn: async ({ orderId, data }: { orderId: string; data: UpdateOrderStatusPayload }) => {
+      const response = await orderAPI.updateOrderStatus(orderId, data);
+      return response.data.data;
+    },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       queryClient.invalidateQueries({ queryKey: ['order', variables.orderId] });
+      console.log('Order status updated successfully');
     },
+    onError: (error: any) => console.error('Error updating order status:', error),
   });
 };
 
+// Assign rider to order
 export const useAssignRider = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (orderId: string) => orderAPI.assignRider(orderId),
+    mutationFn: async (orderId: string) => {
+      const response = await orderAPI.assignRider(orderId);
+      return response.data.data;
+    },
     onSuccess: (_, orderId) => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       queryClient.invalidateQueries({ queryKey: ['order', orderId] });
+      console.log('Rider assigned successfully');
     },
+    onError: (error: any) => console.error('Error assigning rider:', error),
   });
 };
 
+// Delete order
 export const useDeleteOrder = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (orderId: string) => orderAPI.deleteOrder(orderId),
+    mutationFn: async (orderId: string) => {
+      const response = await orderAPI.deleteOrder(orderId);
+      return response.data.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
+      console.log('Order deleted successfully');
     },
+    onError: (error: any) => console.error('Error deleting order:', error),
   });
 };

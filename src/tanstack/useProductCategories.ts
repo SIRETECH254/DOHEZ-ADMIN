@@ -5,16 +5,23 @@ import type { CreateProductCategoryPayload, UpdateProductCategoryPayload, GetPro
 const DEFAULT_STALE_TIME = 1000 * 60 * 5;
 const DEFAULT_GC_TIME = 1000 * 60 * 10;
 
+// Create product category
 export const useCreateProductCategory = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: CreateProductCategoryPayload | FormData) => productCategoryAPI.createProductCategory(data),
+    mutationFn: async (data: CreateProductCategoryPayload | FormData) => {
+      const response = await productCategoryAPI.createProductCategory(data);
+      return response.data.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['productCategories'] });
+      console.log('Product category created successfully');
     },
+    onError: (error: any) => console.error('Error creating product category:', error),
   });
 };
 
+// Get product categories
 export const useGetProductCategories = (params?: GetProductCategoriesParams) => {
   return useQuery({
     queryKey: ['productCategories', params],
@@ -27,6 +34,7 @@ export const useGetProductCategories = (params?: GetProductCategoriesParams) => 
   });
 };
 
+// Get product category by ID
 export const useGetProductCategoryById = (id: string) => {
   return useQuery({
     queryKey: ['productCategory', id],
@@ -40,24 +48,35 @@ export const useGetProductCategoryById = (id: string) => {
   });
 };
 
+// Update product category
 export const useUpdateProductCategory = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateProductCategoryPayload | FormData }) =>
-      productCategoryAPI.updateProductCategory(id, data),
+    mutationFn: async ({ id, data }: { id: string; data: UpdateProductCategoryPayload | FormData }) => {
+      const response = await productCategoryAPI.updateProductCategory(id, data);
+      return response.data.data;
+    },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['productCategories'] });
       queryClient.invalidateQueries({ queryKey: ['productCategory', variables.id] });
+      console.log('Product category updated successfully');
     },
+    onError: (error: any) => console.error('Error updating product category:', error),
   });
 };
 
+// Delete product category
 export const useDeleteProductCategory = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => productCategoryAPI.deleteProductCategory(id),
+    mutationFn: async (id: string) => {
+      const response = await productCategoryAPI.deleteProductCategory(id);
+      return response.data.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['productCategories'] });
+      console.log('Product category deleted successfully');
     },
+    onError: (error: any) => console.error('Error deleting product category:', error),
   });
 };

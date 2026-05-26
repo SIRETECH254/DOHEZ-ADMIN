@@ -11,8 +11,6 @@ import type {
   GetUsersParams,
   GetCustomersParams 
 } from '../types/api.types';
-// Note: SetUserAdminPayload not in api.types currently, inferred as simple payload or string
-
 
 const DEFAULT_STALE_TIME = 1000 * 60 * 5;
 const DEFAULT_GC_TIME = 1000 * 60 * 10;
@@ -40,7 +38,9 @@ export const useUpdateProfile = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user', 'profile'] });
+      console.log('Profile updated successfully');
     },
+    onError: (error: any) => console.error('Error updating profile:', error),
   });
 };
 
@@ -51,6 +51,8 @@ export const useChangePassword = () => {
       const response = await userAPI.changePassword(data);
       return response.data;
     },
+    onSuccess: () => console.log('Password changed successfully'),
+    onError: (error: any) => console.error('Error changing password:', error),
   });
 };
 
@@ -77,7 +79,9 @@ export const useUpdateNotificationPreferences = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user', 'notifications'] });
+      console.log('Notification preferences updated successfully');
     },
+    onError: (error: any) => console.error('Error updating notification preferences:', error),
   });
 };
 
@@ -91,7 +95,9 @@ export const useAdminCreateUser = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
+      console.log('User created successfully');
     },
+    onError: (error: any) => console.error('Error creating user:', error),
   });
 };
 
@@ -159,7 +165,9 @@ export const useUpdateUser = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       queryClient.invalidateQueries({ queryKey: ['user', variables.userId] });
+      console.log('User updated successfully');
     },
+    onError: (error: any) => console.error('Error updating user:', error),
   });
 };
 
@@ -174,7 +182,9 @@ export const useUpdateUserStatus = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       queryClient.invalidateQueries({ queryKey: ['user', variables.userId] });
+      console.log('User status updated successfully');
     },
+    onError: (error: any) => console.error('Error updating user status:', error),
   });
 };
 
@@ -188,7 +198,9 @@ export const useSetUserAdmin = () => {
     },
     onSuccess: (_, userId) => {
       queryClient.invalidateQueries({ queryKey: ['user', userId] });
+      console.log('User admin status set successfully');
     },
+    onError: (error: any) => console.error('Error setting user admin:', error),
   });
 };
 
@@ -216,7 +228,9 @@ export const useDeleteUser = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
+      console.log('User deleted successfully');
     },
+    onError: (error: any) => console.error('Error deleting user:', error),
   });
 };
 
@@ -230,7 +244,9 @@ export const useAssignRole = () => {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['user', variables.userId, 'roles'] });
+      console.log('Role assigned successfully');
     },
+    onError: (error: any) => console.error('Error assigning role:', error),
   });
 };
 
@@ -244,6 +260,8 @@ export const useRemoveRole = () => {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['user', variables.userId, 'roles'] });
+      console.log('Role removed successfully');
     },
+    onError: (error: any) => console.error('Error removing role:', error),
   });
 };

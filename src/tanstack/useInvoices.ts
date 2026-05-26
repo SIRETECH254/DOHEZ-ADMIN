@@ -4,16 +4,23 @@ import { invoiceAPI } from '../api';
 const DEFAULT_STALE_TIME = 1000 * 60 * 5;
 const DEFAULT_GC_TIME = 1000 * 60 * 10;
 
+// Create invoice
 export const useCreateInvoice = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: { orderId: string }) => invoiceAPI.createInvoice(data),
+    mutationFn: async (data: { orderId: string }) => {
+      const response = await invoiceAPI.createInvoice(data);
+      return response.data.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      console.log('Invoice created successfully');
     },
+    onError: (error: any) => console.error('Error creating invoice:', error),
   });
 };
 
+// Get all invoices
 export const useGetInvoices = (params?: any) => {
   return useQuery({
     queryKey: ['invoices', params],
@@ -26,6 +33,7 @@ export const useGetInvoices = (params?: any) => {
   });
 };
 
+// Get invoice by ID
 export const useGetInvoiceById = (invoiceId: string) => {
   return useQuery({
     queryKey: ['invoice', invoiceId],

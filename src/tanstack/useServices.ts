@@ -44,11 +44,7 @@ export const useCreateService = () => {
       queryClient.invalidateQueries({ queryKey: ['services'] });
       console.log('Service created successfully');
     },
-    onError: (error: any) => {
-      console.error('Create service error:', error);
-      const errorMessage = error.response?.data?.message;
-      console.error('Error:', errorMessage);
-    },
+    onError: (error: any) => console.error('Error creating service:', error),
   });
 };
 
@@ -65,11 +61,7 @@ export const useUpdateService = () => {
       queryClient.invalidateQueries({ queryKey: ['service', variables.serviceId] });
       console.log('Service updated successfully');
     },
-    onError: (error: any) => {
-      console.error('Update service error:', error);
-      const errorMessage = error.response?.data?.message;
-      console.error('Error:', errorMessage);
-    },
+    onError: (error: any) => console.error('Error updating service:', error),
   });
 };
 
@@ -85,10 +77,6 @@ export const useDeleteService = () => {
       queryClient.invalidateQueries({ queryKey: ['services'] });
       console.log('Service deleted successfully');
     },
-    onError: (error: any) => {
-      console.error('Delete service error:', error);
-      const errorMessage = error.response?.data?.message;
-      console.error('Error:', errorMessage);
-    },
+    onError: (error: any) => console.error('Error deleting service:', error),
   });
 };

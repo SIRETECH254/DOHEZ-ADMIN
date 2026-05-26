@@ -5,16 +5,23 @@ import type { CreateProductTypePayload, UpdateProductTypePayload, GetProductType
 const DEFAULT_STALE_TIME = 1000 * 60 * 5;
 const DEFAULT_GC_TIME = 1000 * 60 * 10;
 
+// Create product type
 export const useCreateProductType = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: CreateProductTypePayload | FormData) => productTypeAPI.createProductType(data),
+    mutationFn: async (data: CreateProductTypePayload | FormData) => {
+      const response = await productTypeAPI.createProductType(data);
+      return response.data.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['productTypes'] });
+      console.log('Product type created successfully');
     },
+    onError: (error: any) => console.error('Error creating product type:', error),
   });
 };
 
+// Get product types
 export const useGetProductTypes = (params?: GetProductTypesParams) => {
   return useQuery({
     queryKey: ['productTypes', params],
@@ -27,6 +34,7 @@ export const useGetProductTypes = (params?: GetProductTypesParams) => {
   });
 };
 
+// Get product type by ID
 export const useGetProductTypeById = (id: string) => {
   return useQuery({
     queryKey: ['productType', id],
@@ -40,24 +48,35 @@ export const useGetProductTypeById = (id: string) => {
   });
 };
 
+// Update product type
 export const useUpdateProductType = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateProductTypePayload | FormData }) =>
-      productTypeAPI.updateProductType(id, data),
+    mutationFn: async ({ id, data }: { id: string; data: UpdateProductTypePayload | FormData }) => {
+      const response = await productTypeAPI.updateProductType(id, data);
+      return response.data.data;
+    },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['productTypes'] });
       queryClient.invalidateQueries({ queryKey: ['productType', variables.id] });
+      console.log('Product type updated successfully');
     },
+    onError: (error: any) => console.error('Error updating product type:', error),
   });
 };
 
+// Delete product type
 export const useDeleteProductType = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => productTypeAPI.deleteProductType(id),
+    mutationFn: async (id: string) => {
+      const response = await productTypeAPI.deleteProductType(id);
+      return response.data.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['productTypes'] });
+      console.log('Product type deleted successfully');
     },
+    onError: (error: any) => console.error('Error deleting product type:', error),
   });
 };

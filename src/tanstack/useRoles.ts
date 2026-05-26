@@ -58,11 +58,7 @@ export const useCreateRole = () => {
       queryClient.invalidateQueries({ queryKey: ['roles'] });
       console.log('Role created successfully');
     },
-    onError: (error: any) => {
-      console.error('Create role error:', error);
-      const errorMessage = error.response?.data?.message;
-      console.error('Error:', errorMessage);
-    },
+    onError: (error: any) => console.error('Error creating role:', error),
   });
 };
 
@@ -80,11 +76,7 @@ export const useUpdateRole = () => {
       queryClient.invalidateQueries({ queryKey: ['role', variables.roleId] });
       console.log('Role updated successfully');
     },
-    onError: (error: any) => {
-      console.error('Update role error:', error);
-      const errorMessage = error.response?.data?.message;
-      console.error('Error:', errorMessage);
-    },
+    onError: (error: any) => console.error('Error updating role:', error),
   });
 };
 
@@ -101,11 +93,7 @@ export const useDeleteRole = () => {
       queryClient.invalidateQueries({ queryKey: ['roles'] });
       console.log('Role deleted successfully');
     },
-    onError: (error: any) => {
-      console.error('Delete role error:', error);
-      const errorMessage = error.response?.data?.message;
-      console.error('Error:', errorMessage);
-    },
+    onError: (error: any) => console.error('Error deleting role:', error),
   });
 };
 

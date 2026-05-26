@@ -5,16 +5,23 @@ import type { CreateAddressPayload, UpdateAddressPayload } from '../types/api.ty
 const DEFAULT_STALE_TIME = 1000 * 60 * 5;
 const DEFAULT_GC_TIME = 1000 * 60 * 10;
 
+// Create address
 export const useCreateAddress = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: CreateAddressPayload) => addressAPI.createAddress(data),
+    mutationFn: async (data: CreateAddressPayload) => {
+      const response = await addressAPI.createAddress(data);
+      return response.data.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['addresses'] });
+      console.log('Address created successfully');
     },
+    onError: (error: any) => console.error('Error creating address:', error),
   });
 };
 
+// Get user addresses
 export const useGetUserAddresses = (params?: { page?: number; limit?: number; search?: string }) => {
   return useQuery({
     queryKey: ['addresses', params],
@@ -27,6 +34,7 @@ export const useGetUserAddresses = (params?: { page?: number; limit?: number; se
   });
 };
 
+// Get address by ID
 export const useGetAddressById = (id: string) => {
   return useQuery({
     queryKey: ['address', id],
@@ -40,34 +48,51 @@ export const useGetAddressById = (id: string) => {
   });
 };
 
+// Update address
 export const useUpdateAddress = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateAddressPayload }) =>
-      addressAPI.updateAddress(id, data),
+    mutationFn: async ({ id, data }: { id: string; data: UpdateAddressPayload }) => {
+      const response = await addressAPI.updateAddress(id, data);
+      return response.data.data;
+    },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['addresses'] });
       queryClient.invalidateQueries({ queryKey: ['address', variables.id] });
+      console.log('Address updated successfully');
     },
+    onError: (error: any) => console.error('Error updating address:', error),
   });
 };
 
+// Delete address
 export const useDeleteAddress = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => addressAPI.deleteAddress(id),
+    mutationFn: async (id: string) => {
+      const response = await addressAPI.deleteAddress(id);
+      return response.data.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['addresses'] });
+      console.log('Address deleted successfully');
     },
+    onError: (error: any) => console.error('Error deleting address:', error),
   });
 };
 
+// Set default address
 export const useSetDefaultAddress = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => addressAPI.setDefaultAddress(id),
+    mutationFn: async (id: string) => {
+      const response = await addressAPI.setDefaultAddress(id);
+      return response.data.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['addresses'] });
+      console.log('Default address set successfully');
     },
+    onError: (error: any) => console.error('Error setting default address:', error),
   });
 };
