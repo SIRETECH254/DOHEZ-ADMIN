@@ -6,7 +6,10 @@ import Login from './app/public/auth/Login';
 import ForgotPassword from './app/public/auth/ForgotPassword';
 import VerifyOtp from './app/public/auth/VerifyOtp';
 import ResetPassword from './app/public/auth/ResetPassword';
-import Dashboard from './app/authenticated/Dashboard';
+import Dashboard from './app/authenticated/Dashboard/Dashboard';
+import Profile from './app/authenticated/profile/Profile';
+import EditProfile from './app/authenticated/profile/EditProfile';
+import ChangePassword from './app/authenticated/profile/ChangePassword';
 import Layout from './components/layout/layout'
 
 export default function App() {
@@ -34,6 +37,9 @@ export default function App() {
         <Route element={<Layout/>}>
 
           <Route path="/dashboard" element={ <Dashboard />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/profile/edit" element={<EditProfile />} />
+          <Route path="/profile/change-password" element={<ChangePassword />} />
           
         </Route>
 
