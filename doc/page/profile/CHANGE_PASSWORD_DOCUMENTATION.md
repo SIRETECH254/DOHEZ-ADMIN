@@ -18,7 +18,7 @@
 ```tsx
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MdVisibility, MdVisibilityOff } from 'react-icons/md';
+import { MdVisibility, MdVisibilityOff, MdArrowBack } from 'react-icons/md';
 import { useAuth } from '../../../contexts/AuthContext';
 ```
 
@@ -27,13 +27,27 @@ import { useAuth } from '../../../contexts/AuthContext';
 ### Context
 
 #### `Auth`
-- **Hook usage:** `const { changePassword, error, clearError } = useAuth();`
-- Provides the function to change the user's password and access to global auth errors.
+- **Hook usage:** `const { changePassword } = useAuth();`
+- Provides the function to change the user's password.
+
+**`changePassword` function (from `AuthContext.tsx`):**
+```tsx
+const changePassword = async (passwordData: ChangePasswordPayload): Promise<AuthResult> => {
+  try {
+    await userAPI.changePassword(passwordData);
+    return { success: true };
+  } catch (changeError: any) {
+    const errorMessage =
+      changeError?.response?.data?.message || changeError?.message || 'Failed to change password';
+    return { success: false, error: errorMessage };
+  }
+};
+```
 
 ### Form State
 
 #### `form`
-- **Form state:** managed with `useState`.
+- **Form state:** managed with `useState` to track current, new, and confirm password fields.
 ```tsx
 const [form, setForm] = useState({
   currentPassword: '',
@@ -42,8 +56,8 @@ const [form, setForm] = useState({
 })
 ```
 
-#### `isPasswordVisible`
-- **Visibility state:** toggles for each password field.
+#### `visibility`
+- **Visibility state:** toggles for each password field (`current`, `new`, `confirm`).
 ```tsx
 const [visibility, setVisibility] = useState({
   current: false,
@@ -53,9 +67,15 @@ const [visibility, setVisibility] = useState({
 ```
 
 #### `inlineMessage`
-- **Inline message state:** stores success or error feedback messages.
+- **Feedback state:** stores success or error messages after a submission attempt.
 ```tsx
 const [inlineMessage, setInlineMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+```
+
+#### `isSubmitting`
+- **Loading state:** boolean to disable buttons while the request is in progress.
+```tsx
+const [isSubmitting, setIsSubmitting] = useState(false)
 ```
 
 ## Functions Involved
@@ -65,38 +85,44 @@ const [inlineMessage, setInlineMessage] = useState<{ type: 'success' | 'error', 
 
 **process:**
 1. Prevents default form submission.
-2. Validates that all fields are filled.
+2. Resets `inlineMessage` and sets `isSubmitting` to `true`.
 3. Validates that `newPassword` and `confirmPassword` match.
 4. Calls the `changePassword` function from the auth context.
-5. If successful, shows a success message and potentially clears the form.
+5. If successful, shows a success message and clears the form.
 6. If it fails, displays the error returned by the API.
+7. Sets `isSubmitting` to `false` in the `finally` block.
 
-**function implementation (planned):**
+**function implementation:**
 ```tsx
-  const handleSubmit = useCallback(
-    async (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-      setInlineMessage(null);
+  const handleSubmit = useCallback(async (event: React.FormEvent) => {
+    event.preventDefault();
+    setInlineMessage(null);
 
-      if (form.newPassword !== form.confirmPassword) {
-        setInlineMessage({ type: 'error', text: 'New passwords do not match.' });
-        return;
-      }
+    if (form.newPassword !== form.confirmPassword) {
+      setInlineMessage({ type: 'error', text: 'New passwords do not match.' });
+      return;
+    }
 
+    setIsSubmitting(true);
+
+    try {
       const result = await changePassword({
         currentPassword: form.currentPassword,
-        newPassword: form.newPassword
+        newPassword: form.newPassword,
       });
 
       if (result.success) {
         setInlineMessage({ type: 'success', text: 'Password updated successfully!' });
         setForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
       } else {
-        setInlineMessage({ type: 'error', text: result.error ?? 'Failed to update password' });
+        setInlineMessage({ type: 'error', text: result.error ?? 'Failed to update password.' });
       }
-    },
-    [form, changePassword]
-  );
+    } catch (err) {
+      setInlineMessage({ type: 'error', text: 'An unexpected error occurred.' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [form, changePassword]);
 ```
 
 ### `handleInputChange()`
@@ -108,12 +134,20 @@ const [inlineMessage, setInlineMessage] = useState<{ type: 'success' | 'error', 
 
 **function implementation:**
 ```tsx
-  const handleInputChange = useCallback(
-    (name: keyof typeof form, value: string) => {
-      setForm((prev) => ({ ...prev, [name]: value }));
-      setInlineMessage(null);
-    },
-    []
+  const handleInputChange = useCallback((name: keyof typeof form, value: string) => {
+    setForm((prev) => ({ ...prev, [name]: value }));
+    setInlineMessage(null);
+  }, []);
+```
+
+### `canSubmit`
+**purpose:** A memoized boolean that determines whether the form is ready for submission.
+
+**implementation:**
+```tsx
+  const canSubmit = useMemo(
+    () => form.currentPassword && form.newPassword && form.confirmPassword && !isSubmitting,
+    [form, isSubmitting]
   );
 ```
 
@@ -129,6 +163,14 @@ export interface ChangePasswordPayload {
 }
 ```
 
+#### Payload
+```json
+{
+  "currentPassword": "string",
+  "newPassword": "string"
+}
+```
+
 #### API
 ```typescript
 export const userAPI = {
@@ -137,23 +179,19 @@ export const userAPI = {
 }
 ```
 
-#### Auth Function
-```tsx
-const changePassword = async (passwordData: ChangePasswordPayload): Promise<AuthResult> => {
-  try {
-    await userAPI.changePassword(passwordData);
-    return { success: true };
-  } catch (error) {
-    // ... handle error
-  }
-};
+#### Response
+```json
+{
+  "success": true,
+  "message": "Password changed successfully"
+}
 ```
 
 ## UI Structure
-- **Container:** Maximum width container (`max-w-md`) centered on the page.
-- **Card:** White background card containing the form.
-- **Form Groups:** Vertical arrangement of labels and password inputs with visibility toggles.
-- **Actions:** Update Password button and a back link.
+- **Screen shell:** Uses `auth-page` and `auth-container` classes for consistent layout.
+- **Form:** Uses `auth-form` space-y-5.
+- **Inputs:** `input-password` class for password fields with visibility toggles.
+- **Feedback:** A color-coded banner for success (green) or error (red) messages.
 
 ## Planned Layout
 ```
@@ -194,7 +232,35 @@ const changePassword = async (passwordData: ChangePasswordPayload): Promise<Auth
 
 ## Form Inputs
 
-### `Password Field`
+### `Current Password Field`
+**Purpose**: Collects the user's current password for verification.
+**Applicable**: Uses `input-password` class and toggles visibility via `visibility.current` state.
+
+**Input implementation**:
+```tsx
+<div className="relative">
+  <input
+    type={visibility.current ? 'text' : 'password'}
+    value={form.currentPassword}
+    onChange={(e) => handleInputChange('currentPassword', e.target.value)}
+    className="input-password"
+    placeholder="••••••••"
+  />
+  <button
+    type="button"
+    onClick={() => toggleVisibility('current')}
+    className="input-toggle-icon"
+  >
+    {visibility.current ? <MdVisibilityOff /> : <MdVisibility />}
+  </button>
+</div>
+```
+
+### `New Password Field`
+**Purpose**: Collects the new password.
+**Applicable**: Uses `input-password` class and toggles visibility via `visibility.new` state.
+
+**Input implementation**:
 ```tsx
 <div className="relative">
   <input
@@ -202,7 +268,7 @@ const changePassword = async (passwordData: ChangePasswordPayload): Promise<Auth
     value={form.newPassword}
     onChange={(e) => handleInputChange('newPassword', e.target.value)}
     className="input-password"
-    placeholder="New password"
+    placeholder="••••••••"
   />
   <button
     type="button"
@@ -214,6 +280,46 @@ const changePassword = async (passwordData: ChangePasswordPayload): Promise<Auth
 </div>
 ```
 
+### `Confirm Password Field`
+**Purpose**: Confirms the new password.
+**Applicable**: Uses `input-password` class and toggles visibility via `visibility.confirm` state.
+
+**Input implementation**:
+```tsx
+<div className="relative">
+  <input
+    type={visibility.confirm ? 'text' : 'password'}
+    value={form.confirmPassword}
+    onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+    className="input-password"
+    placeholder="••••••••"
+  />
+  <button
+    type="button"
+    onClick={() => toggleVisibility('confirm')}
+    className="input-toggle-icon"
+  >
+    {visibility.confirm ? <MdVisibilityOff /> : <MdVisibility />}
+  </button>
+</div>
+```
+
+### `Submit Button`
+**Purpose**: Triggers the password update request.
+**Applicable**: Disables when submission is in progress or fields are empty.
+
+**Input implementation**:
+```tsx
+<button
+  type="submit"
+  disabled={!canSubmit}
+  className="auth-button"
+>
+  {isSubmitting ? 'Updating...' : 'Update Password'}
+</button>
+```
+
+
 ## Error Handling
 - Checks for password mismatch before calling the API.
 - Displays API errors (e.g., incorrect current password) via `inlineMessage`.
@@ -222,10 +328,9 @@ const changePassword = async (passwordData: ChangePasswordPayload): Promise<Auth
 ## Navigation Flow
 - Route: `/profile/change-password`.
 - From Profile Detail: "Change Password" action ➞ `/profile/change-password`.
-- On Success: Stays on page with success message or redirects to `/profile`.
 - Back: Redirects to `/profile`.
 
 ## Future Enhancements
 - Add password strength meter.
-- Implement account lockout after multiple failed "current password" attempts.
-- Add "Forgot Password" link as a secondary option.
+- Implement account lockout after multiple failed attempts.
+- Add "Forgot Password" link as a secondary option if they forget their current password.

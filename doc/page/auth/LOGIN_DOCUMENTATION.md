@@ -217,6 +217,15 @@ export interface LoginPayload {
 }
 ```
 
+#### Payload
+```json
+{
+  "email": "string",
+  "phone": "string",
+  "password": "string"
+}
+```
+
 #### API
 ```typescript
 export const authAPI = {

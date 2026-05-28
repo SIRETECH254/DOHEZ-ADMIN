@@ -222,6 +222,15 @@ export interface UpdateProfilePayload {
 }
 ```
 
+#### Payload
+```json
+{
+  "firstName": "string",
+  "lastName": "string",
+  "phone": "string"
+}
+```
+
 #### API
 ```typescript
 export const userAPI = {

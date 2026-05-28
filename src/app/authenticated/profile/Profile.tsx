@@ -240,7 +240,7 @@ const Profile: React.FC = () => {
 
           {/* Change Password */}
           <button
-            onClick={() => handleAction('password')}
+            onClick={() => navigate('/profile/change-password')}
             className="flex items-center justify-between p-5 bg-white rounded-2xl border border-gray-100 shadow-sm transition-all hover:border-brand-primary/30 hover:shadow-md group"
           >
             <div className="flex items-center gap-4">
