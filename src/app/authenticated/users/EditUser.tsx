@@ -107,7 +107,7 @@ export default function EditUser() {
       
       <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 space-y-6">
         {/* Read-only Avatar/Initials & Status */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
           <div className="flex items-center gap-4">
             {user.avatar ? (
               <img 
