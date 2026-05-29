@@ -64,17 +64,25 @@ export interface IUser {
   firstName: string;
   lastName: string;
   email: string;
+  password?: string;
+  roles: string[] | IRole[];
   phone: string;
-  avatar?: string | null;
-  roles: IRole[];
   isActive: boolean;
   isVerified: boolean;
+  avatar?: string | null;
+  avatarPublicId?: string | null;
+  otpCode?: string;
+  otpExpiry?: string;
+  resetPasswordToken?: string;
+  resetPasswordExpiry?: string;
   lastLoginAt?: string;
   notificationPreferences?: NotificationPreferences;
+  vendor?: string | IVendor;
+  branch?: string | IBranch;
+  services?: string[];
   workingHours?: WorkingHours;
-  services?: string[]; // IDs
   createdAt: string;
-  updatedAt?: string;
+  updatedAt: string;
 }
 
 export interface Document {
@@ -89,8 +97,8 @@ export interface IRole  {
   permissions: string[];
   isActive: boolean;
   isSystemRole: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface NotificationPreferences {
@@ -342,8 +350,8 @@ export interface IVendor {
   _id: string;
   userId: string | IUser;
   vendorCategory: string | IVendorCategory;
-  service?: string | IService | null;
-  branches: string[];
+  service: string | IService;
+  branches: string[] | IBranch[];
   name: string;
   details?: string;
   phone: string;
@@ -355,7 +363,7 @@ export interface IVendor {
   logoPublicId?: string | null;
   cover?: string | null;
   coverPublicId?: string | null;
-  location: VendorLocation;
+  location: any;
   slug: string;
   kraPin?: string | null;
   regNo?: string | null;
@@ -937,9 +945,22 @@ export interface UpdateProductModifierPayload {
   maxSelection?: number;
 }
 
-// ============================================
-// Product Types
-// ============================================
+// Add these interfaces below IService
+export interface ISelectedVariantOption {
+  variantId: string;
+  optionId: string;
+}
+
+export interface ISelectedModifierOption {
+  modifierId: string;
+  optionId: string;
+}
+
+export interface IVariant {
+  _id: string;
+  name: string;
+  options: { _id: string; name: string; price: number }[];
+}
 
 export interface IProduct {
   _id: string;
@@ -948,23 +969,24 @@ export interface IProduct {
   details?: string;
   price: number;
   offerPrice?: number;
-  images: { url: string; publicId: string }[];
+  images: Array<{ url: string; publicId: string }>;
   category: string | IProductCategory;
   vendor: string | IVendor;
   branch: string | IBranch;
   service: string | IService;
-  variants: string[];
-  selectedVariantOptions: any[];
-  modifiers: string[];
-  selectedModifierOptions: any[];
+  variants: string[] | IVariant[];
+  selectedVariantOptions: ISelectedVariantOption[];
+  modifiers: string[] | IProductModifier[];
+  selectedModifierOptions: ISelectedModifierOption[];
   skus: ISKU[];
   status: boolean;
   trackInventory: boolean;
-  duration?: string | null;
-  buffertime?: string | null;
+  duration?: string;
+  buffertime?: string;
   createdAt: string;
   updatedAt: string;
 }
+
 
 export interface ISKU {
   _id: string;

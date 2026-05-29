@@ -407,7 +407,7 @@ const UsersList: React.FC = () => {
                     <td className="table-cell table-cell-text">{user.phone}</td>
                     <td className="table-cell">
                       <div className="flex flex-wrap gap-1">
-                        {user.roles.map((role: IRole) => (
+                        {(user.roles as IRole[]).map((role: IRole) => (
                           <StatusBadge 
                             key={role._id} 
                             status={role.displayName || role.name} 

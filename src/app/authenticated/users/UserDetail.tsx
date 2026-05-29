@@ -46,7 +46,7 @@ export default function UserDetail() {
             <div className="flex items-center gap-2">
               <strong>Roles:</strong>
               <div className="flex flex-wrap gap-1">
-                {user.roles.map((role: IRole) => (
+                {(user.roles as IRole[]).map((role: IRole) => (
                   <StatusBadge 
                     key={role._id} 
                     status={role.displayName || role.name} 
