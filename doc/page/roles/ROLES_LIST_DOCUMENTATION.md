@@ -356,10 +356,17 @@ API returns a message in `response.data.message`; fallback to a generic error me
 </select>
 ```
 
-## Pagination
-- Uses the `Pagination` component.
-- Navigates through pages via the `onPageChange` callback.
-- Synchronized with the API's `pagination` metadata.
+## Navigation Flow
+- Route: `/roles`.
+- "Add Role" button ➞ `/roles/new`.
+- View icon ➞ `/roles/:roleId`.
+- Edit icon ➞ `/roles/:roleId/edit`.
+
+## Future Enhancements
+- Integrate `react-hook-form` for complex validation if edit/creation flows expand.
+- Add bulk actions (delete, activate/deactivate) with a checkbox selector.
+- Include role export functionality (CSV/PDF) for reporting.
+- Implement granular permission editing interfaces for complex roles.
 
 ## Error and Loading States
 - **Loading:** skeleton rows are shown while `isLoading` is true.
