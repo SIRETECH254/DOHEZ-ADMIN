@@ -211,7 +211,7 @@ const RolesList: React.FC = () => {
             <tr>
               <th className="table-header-cell">Display Name</th>
               <th className="table-header-cell">Name</th>
-              <th className="table-header-cell">Description</th>
+              <th className="table-header-cell">System Role</th>
               <th className="table-header-cell">Status</th>
               <th className="table-header-cell-right">Actions</th>
             </tr>
@@ -229,7 +229,7 @@ const RolesList: React.FC = () => {
                       <div className="h-4 w-24 bg-gray-200 rounded"></div>
                     </td>
                     <td className="table-cell">
-                      <div className="h-4 w-48 bg-gray-200 rounded"></div>
+                      <div className="h-6 w-24 bg-gray-200 rounded-full"></div>
                     </td>
                     <td className="table-cell">
                       <div className="h-6 w-16 bg-gray-200 rounded-full"></div>
@@ -282,8 +282,11 @@ const RolesList: React.FC = () => {
                     {role.name}
                   </code>
                 </td>
-                <td className="table-cell table-cell-text max-w-xs truncate">
-                  {role.description || '-'}
+                <td className="table-cell">
+                  <StatusBadge 
+                    status={role.isSystemRole} 
+                    type="system-role" 
+                  />
                 </td>
                 <td className="table-cell">
                   <StatusBadge 

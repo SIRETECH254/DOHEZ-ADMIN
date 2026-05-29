@@ -17,7 +17,7 @@ import {
   FiHelpCircle,
 } from 'react-icons/fi';
 
-export type BadgeType = 'user-role' | 'user-status' | 'verified-status';
+export type BadgeType = 'user-role' | 'user-status' | 'verified-status' | 'system-role';
 
 interface StatusBadgeProps {
   status: string | boolean;
@@ -74,6 +74,12 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
           return <FiCheckCircle className="h-3 w-3" />;
         }
         return <FiXCircle className="h-3 w-3" />;
+
+      case 'system-role':
+        if (status === true || status === 'true' || upperStatus === 'SYSTEM' || upperStatus === 'YES') {
+          return <FiShield className="h-3 w-3" />;
+        }
+        return <FiUser className="h-3 w-3" />;
 
       default:
         return <FiHelpCircle className="h-3 w-3" />;
@@ -171,6 +177,21 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
       };
     }
 
+    if (badgeType === 'system-role') {
+      if (status === true || status === 'true' || upperStatus === 'SYSTEM' || upperStatus === 'YES') {
+        return {
+          bg: 'bg-purple-100',
+          text: 'text-purple-700',
+          iconColor: '#7C3AED',
+        };
+      }
+      return {
+        bg: 'bg-blue-100',
+        text: 'text-blue-700',
+        iconColor: '#2563EB',
+      };
+    }
+
     return {
       bg: 'bg-gray-100',
       text: 'text-gray-700',
@@ -184,6 +205,13 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
         return 'Verified';
       }
       return 'Not Verified';
+    }
+
+    if (badgeType === 'system-role') {
+      if (status === true || status === 'true' || String(status).toUpperCase() === 'SYSTEM' || String(status).toUpperCase() === 'YES') {
+        return 'System Role';
+      }
+      return 'Custom Role';
     }
 
     const statusStr = typeof status === 'string' ? status : String(status);
