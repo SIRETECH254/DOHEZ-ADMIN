@@ -40,7 +40,7 @@ export const useGetTaskById = (taskId: string) => {
     queryKey: ['task', taskId],
     queryFn: async () => {
       const response = await taskAPI.getTaskById(taskId);
-      return response.data.data;
+      return response.data.data.task;
     },
     enabled: !!taskId,
     staleTime: DEFAULT_STALE_TIME,

@@ -17,6 +17,10 @@ import RolesList from './app/authenticated/roles/RolesList';
 import RoleDetail from './app/authenticated/roles/RoleDetail';
 import EditRole from './app/authenticated/roles/EditRole';
 import CreateRole from './app/authenticated/roles/CreateRole';
+import TaskList from './app/authenticated/tasks/TaskList';
+import TaskDetail from './app/authenticated/tasks/TaskDetail';
+import EditTask from './app/authenticated/tasks/EditTask';
+import CreateTask from './app/authenticated/tasks/CreateTask';
 import Layout from './components/layout/layout'
 
 export default function App() {
@@ -59,6 +63,12 @@ export default function App() {
           <Route path="/roles/new" element={<CreateRole />} />
           <Route path="/roles/:roleId" element={<RoleDetail />} />
           <Route path="/roles/:roleId/edit" element={<EditRole />} />
+
+          {/* Task Management Routes */}
+          <Route path="/tasks" element={<TaskList />} />
+          <Route path="/tasks/new" element={<CreateTask />} />
+          <Route path="/tasks/:taskId" element={<TaskDetail />} />
+          <Route path="/tasks/:taskId/edit" element={<EditTask />} />
           
         </Route>
 

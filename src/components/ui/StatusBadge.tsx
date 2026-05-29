@@ -17,7 +17,7 @@ import {
   FiHelpCircle,
 } from 'react-icons/fi';
 
-export type BadgeType = 'user-role' | 'user-status' | 'verified-status' | 'system-role';
+export type BadgeType = 'user-role' | 'user-status' | 'verified-status' | 'system-role' | 'task-status';
 
 interface StatusBadgeProps {
   status: string | boolean;
@@ -80,6 +80,12 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
           return <FiShield className="h-3 w-3" />;
         }
         return <FiUser className="h-3 w-3" />;
+
+      case 'task-status':
+        if (status === true || status === 'true' || upperStatus === 'ACTIVE' || upperStatus === 'YES') {
+          return <FiCheckCircle className="h-3 w-3" />;
+        }
+        return <FiXCircle className="h-3 w-3" />;
 
       default:
         return <FiHelpCircle className="h-3 w-3" />;
@@ -192,6 +198,21 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
       };
     }
 
+    if (badgeType === 'task-status') {
+      if (status === true || status === 'true' || upperStatus === 'ACTIVE' || upperStatus === 'YES') {
+        return {
+          bg: 'bg-green-100',
+          text: 'text-green-700',
+          iconColor: '#16A34A',
+        };
+      }
+      return {
+        bg: 'bg-red-100',
+        text: 'text-red-700',
+        iconColor: '#DC2626',
+      };
+    }
+
     return {
       bg: 'bg-gray-100',
       text: 'text-gray-700',
@@ -212,6 +233,13 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
         return 'System Role';
       }
       return 'Custom Role';
+    }
+
+    if (badgeType === 'task-status') {
+      if (status === true || status === 'true' || String(status).toUpperCase() === 'ACTIVE' || String(status).toUpperCase() === 'YES') {
+        return 'Active';
+      }
+      return 'Inactive';
     }
 
     const statusStr = typeof status === 'string' ? status : String(status);
