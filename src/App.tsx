@@ -13,6 +13,10 @@ import ChangePassword from './app/authenticated/profile/ChangePassword';
 import UsersList from './app/authenticated/users/UsersList';
 import UserDetail from './app/authenticated/users/UserDetail';
 import EditUser from './app/authenticated/users/EditUser';
+import RolesList from './app/authenticated/roles/RolesList';
+import RoleDetail from './app/authenticated/roles/RoleDetail';
+import EditRole from './app/authenticated/roles/EditRole';
+import CreateRole from './app/authenticated/roles/CreateRole';
 import Layout from './components/layout/layout'
 
 export default function App() {
@@ -49,6 +53,12 @@ export default function App() {
           <Route path="/users" element={<UsersList />} />
           <Route path="/users/:userId" element={<UserDetail />} />
           <Route path="/users/:userId/edit" element={<EditUser />} />
+
+          {/* Role Management Routes */}
+          <Route path="/roles" element={<RolesList />} />
+          <Route path="/roles/new" element={<CreateRole />} />
+          <Route path="/roles/:roleId" element={<RoleDetail />} />
+          <Route path="/roles/:roleId/edit" element={<EditRole />} />
           
         </Route>
 

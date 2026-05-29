@@ -37,7 +37,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
               className={({ isActive }) =>
                 `flex items-center gap-3 rounded-xl px-3 py-3 text-sm transition ${
                   isActive
-                    ? 'bg-brand-tint text-brand-primary'
+                    ? 'bg-brand-primary/10 text-brand-primary'
                     : 'text-gray-700 hover:bg-gray-100'
                 }`
               }

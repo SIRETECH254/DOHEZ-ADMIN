@@ -124,7 +124,7 @@ export function Pagination({
           type="button"
           onClick={() => onPageChange(1)}
           disabled={safeCurrentPage === 1}
-          className="btn-secondary btn-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+          className="btn bg-brand-primary/10 text-brand-primary border border-brand-primary-dark disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
           aria-label="First page"
         >
           <FiChevronsLeft size={15} />
@@ -135,7 +135,7 @@ export function Pagination({
           type="button"
           onClick={() => onPageChange(Math.max(1, safeCurrentPage - 1))}
           disabled={safeCurrentPage === 1}
-          className="btn-secondary btn-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+          className="btn bg-brand-primary/10 text-brand-primary border border-brand-primary-dark disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
           aria-label="Previous page"
         >
           <FiChevronLeft size={15} />
@@ -157,8 +157,8 @@ export function Pagination({
               onClick={() => onPageChange(page as number)}
               className={`px-3 py-1 rounded-xl border transition text-xs font-semibold ${
                 page === safeCurrentPage
-                  ? 'bg-brand-primary text-white border-brand-primary'
-                  : 'btn-secondary btn-sm border-gray-300 hover:bg-brand-primary/10'
+                  ? 'bg-brand-primary text-white border-brand-primary-dark'
+                  : 'text-brand-primary bg-brand-primary/30 btn-sm border-primary-dark hover:bg-brand-primary/10'
               }`}
               aria-label={`Go to page ${page}`}
               aria-current={page === safeCurrentPage ? 'page' : undefined}
@@ -173,7 +173,7 @@ export function Pagination({
           type="button"
           onClick={() => onPageChange(Math.min(safeTotalPages, safeCurrentPage + 1))}
           disabled={safeCurrentPage === safeTotalPages}
-          className="btn-secondary btn-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+          className="btn bg-brand-primary/10 text-brand-primary border border-brand-primary-dark disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
           aria-label="Next page"
         >
           <FiChevronRight size={15} />
@@ -184,7 +184,7 @@ export function Pagination({
           type="button"
           onClick={() => onPageChange(safeTotalPages)}
           disabled={safeCurrentPage === safeTotalPages}
-          className="btn-secondary btn-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+          className="btn bg-brand-primary/10 text-brand-primary border border-brand-primary-dark disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
           aria-label="Last page"
         >
           <FiChevronsRight size={15} />
