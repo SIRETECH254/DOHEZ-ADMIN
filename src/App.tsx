@@ -10,6 +10,9 @@ import Dashboard from './app/authenticated/Dashboard/Dashboard';
 import Profile from './app/authenticated/profile/Profile';
 import EditProfile from './app/authenticated/profile/EditProfile';
 import ChangePassword from './app/authenticated/profile/ChangePassword';
+import UsersList from './app/authenticated/users/UsersList';
+import UserDetail from './app/authenticated/users/UserDetail';
+import EditUser from './app/authenticated/users/EditUser';
 import Layout from './components/layout/layout'
 
 export default function App() {
@@ -37,9 +40,15 @@ export default function App() {
         <Route element={<Layout/>}>
 
           <Route path="/dashboard" element={ <Dashboard />} />
+          {/* Profile Routes */}
           <Route path="/profile" element={<Profile />} />
           <Route path="/profile/edit" element={<EditProfile />} />
           <Route path="/profile/change-password" element={<ChangePassword />} />
+          
+          {/* User Management Routes */}
+          <Route path="/users" element={<UsersList />} />
+          <Route path="/users/:userId" element={<UserDetail />} />
+          <Route path="/users/:userId/edit" element={<EditUser />} />
           
         </Route>
 

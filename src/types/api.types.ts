@@ -60,7 +60,7 @@ export interface TokenResponse {
 // ============================================
 
 export interface IUser {
-  id: string;
+  _id: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -77,10 +77,20 @@ export interface IUser {
   updatedAt?: string;
 }
 
-export interface IRole {
+export interface Document {
+  _id: string;
+}
+
+export interface IRole  {
   _id: string;
   name: string;
   displayName: string;
+  description?: string;
+  permissions: string[];
+  isActive: boolean;
+  isSystemRole: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface NotificationPreferences {

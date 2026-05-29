@@ -13,6 +13,7 @@ import {
   MdLock,
   MdEdit
 } from 'react-icons/md';
+import type { IRole } from '../../../types/api.types';
 
 const ProfileSkeleton = () => {
   return (
@@ -64,6 +65,7 @@ const Profile: React.FC = () => {
   // Note: profileData is { user: IUser } according to API docs
   const user = useMemo(() => profileData?.user || authUser, [profileData, authUser]);
 
+
   const fullName = useMemo(() => {
     if (!user) return 'User';
     return `${user.firstName} ${user.lastName}`;
@@ -71,7 +73,7 @@ const Profile: React.FC = () => {
 
   const roleDisplay = useMemo(() => {
     if (!user || !user.roles || user.roles.length === 0) return 'User';
-    return user.roles.map(r => r.displayName).join(', ');
+    return user.roles.map((r: IRole) => r.displayName).join(', ');
   }, [user]);
 
   const handleAction = useCallback((action: string) => {

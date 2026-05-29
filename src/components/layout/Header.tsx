@@ -9,7 +9,7 @@ import {
 } from 'react-icons/md'
 import { useAuth } from '../../contexts/AuthContext'
 import { NAV_ITEMS } from '../../constants/navigation'
-import { useInitial } from '../../utils'
+import { useInitials } from '../../utils'
 
 
 type NavbarProps = {
@@ -22,7 +22,7 @@ const Header = ({ isSidebarOpen, onToggleSidebar }: NavbarProps) => {
   const location = useLocation()
   const navigate = useNavigate()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const userInitials = useInitial()
+  const userInitials = useInitials(user ?? undefined)
 
 
   // Resolve the active page label from the current route.

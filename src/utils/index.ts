@@ -1,19 +1,28 @@
 import { useMemo } from 'react'
-import { useAuth } from '../contexts/AuthContext'
+
+interface IUserNames {
+  firstName?: string;
+  lastName?: string;
+}
 
 /**
- * Hook to generate initials from the current authenticated user.
+ * Helper to generate initials from a user object or names.
+ * @param user - Object containing firstName and lastName.
  * @returns The user's initials or 'U' as a fallback.
  */
-export const useInitial = () => {
-  const { user } = useAuth()
+export const getInitials = (user?: IUserNames) => {
+  const initials = [user?.firstName, user?.lastName]
+    .filter(Boolean)
+    .map((value) => value?.[0]?.toUpperCase())
+    .join('')
+  return initials || 'U'
+}
 
-  return useMemo(() => {
-    if (!user) return 'U'
-    const initials = [user.firstName, user.lastName]
-      .filter(Boolean)
-      .map((value) => value?.[0]?.toUpperCase())
-      .join('')
-    return initials || 'U'
-  }, [user])
+/**
+ * Hook to generate initials from a user object.
+ * @param user - Object containing firstName and lastName.
+ * @returns The user's initials or 'U' as a fallback.
+ */
+export const useInitials = (user?: IUserNames) => {
+  return useMemo(() => getInitials(user), [user?.firstName, user?.lastName])
 }
