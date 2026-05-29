@@ -33,6 +33,11 @@ export default function EditUser() {
 
   useEffect(() => {
     if (data?.user) {
+      // Normalize services to an array of IDs
+      const initialServices = Array.isArray(data.user.services)
+        ? data.user.services.map((s: string | IProduct) => (typeof s === 'string' ? s : s._id))
+        : [];
+
       setForm({
         firstName: data.user.firstName || '',
         lastName: data.user.lastName || '',
@@ -47,7 +52,7 @@ export default function EditUser() {
           saturday: { start: '', end: '' },
           sunday: { start: '', end: '' },
         },
-        services: data.user.services || [],
+        services: initialServices,
       });
     }
   }, [data]);
