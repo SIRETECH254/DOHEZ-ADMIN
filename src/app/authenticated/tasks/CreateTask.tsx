@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MdArrowBack } from 'react-icons/md';
+import { MdArrowBack, MdCameraAlt } from 'react-icons/md';
 import { useCreateTask } from '../../../tanstack/useTasks';
 
 const CreateTask: React.FC = () => {
@@ -26,6 +26,10 @@ const CreateTask: React.FC = () => {
       setPreviewUrl(null);
     }
   };
+
+  const triggerFileInput = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,24 +71,36 @@ const CreateTask: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           {inlineError && <div className="p-4 bg-red-50 border border-red-100 rounded-xl text-red-600 text-sm">{inlineError}</div>}
           
-          <div className="space-y-4">
-            <label className="label">Task Image</label>
-            <div className="flex items-center gap-4">
+          <div className="flex flex-col items-center mb-8">
+            <div 
+              onClick={triggerFileInput}
+              className="relative group cursor-pointer"
+            >
+              <input 
+                type="file"
+                ref={fileInputRef}
+                onChange={handleImageChange}
+                accept="image/*"
+                className="hidden"
+              />
               {previewUrl ? (
-                <img src={previewUrl} alt="Preview" className="h-20 w-20 rounded-full object-cover border" />
+                <img 
+                  src={previewUrl} 
+                  alt="Task Preview" 
+                  className="h-32 w-32 rounded-full object-cover border-4 border-white shadow-md group-hover:opacity-75 transition-opacity"
+                />
               ) : (
-                <div className="h-20 w-20 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary text-xl font-bold border border-brand-primary/20">
+                <div className="h-32 w-32 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary text-4xl font-bold border-4 border-white shadow-md group-hover:opacity-75 transition-opacity">
                   {form.name ? form.name.substring(0, 2).toUpperCase() : 'TA'}
                 </div>
               )}
-              <input 
-                type="file" 
-                ref={fileInputRef}
-                onChange={handleImageChange} 
-                className="input" 
-                accept="image/*"
-              />
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="bg-black/40 rounded-full p-2">
+                  <MdCameraAlt className="text-white text-2xl" />
+                </div>
+              </div>
             </div>
+            <p className="mt-2 text-sm text-gray-500 font-medium">Click to change photo</p>
           </div>
 
           <div className="space-y-1">

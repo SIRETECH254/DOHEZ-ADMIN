@@ -56,7 +56,7 @@ const TaskDetail: React.FC = () => {
 
   return (
     <div className="p-6 space-y-6">
-      <header className="flex items-center justify-between">
+      <header className="flex sm:items-center flex-col sm:flex-row sm:justify-between gap-y-3">
         <div className="flex items-center gap-4">
           <button 
             onClick={() => navigate('/tasks')}
