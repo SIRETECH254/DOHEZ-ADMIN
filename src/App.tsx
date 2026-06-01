@@ -21,6 +21,10 @@ import TaskList from './app/authenticated/tasks/TaskList';
 import TaskDetail from './app/authenticated/tasks/TaskDetail';
 import EditTask from './app/authenticated/tasks/EditTask';
 import CreateTask from './app/authenticated/tasks/CreateTask';
+import ServiceList from './app/authenticated/services/ServiceList';
+import CreateService from './app/authenticated/services/CreateService';
+import EditService from './app/authenticated/services/EditService';
+import ServiceDetail from './app/authenticated/services/ServiceDetail';
 import Layout from './components/layout/layout'
 
 export default function App() {
@@ -69,6 +73,12 @@ export default function App() {
           <Route path="/tasks/new" element={<CreateTask />} />
           <Route path="/tasks/:taskId" element={<TaskDetail />} />
           <Route path="/tasks/:taskId/edit" element={<EditTask />} />
+
+          {/* Service Management Routes */}
+          <Route path="/services" element={<ServiceList />} />
+          <Route path="/services/new" element={<CreateService />} />
+          <Route path="/services/:serviceId" element={<ServiceDetail />} />
+          <Route path="/services/:serviceId/edit" element={<EditService />} />
           
         </Route>
 
