@@ -17,7 +17,7 @@ import {
   FiHelpCircle,
 } from 'react-icons/fi';
 
-export type BadgeType = 'user-role' | 'user-status' | 'verified-status' | 'system-role' | 'task-status' | 'service-status' | 'vendor-type-status';
+export type BadgeType = 'user-role' | 'user-status' | 'verified-status' | 'system-role' | 'task-status' | 'service-status' | 'vendor-type-status' | 'vendor-category-status';
 
 interface StatusBadgeProps {
   status: string | boolean;
@@ -83,6 +83,8 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
 
       case 'task-status':
       case 'service-status':
+      case 'vendor-type-status':
+      case 'vendor-category-status':
         if (status === true || status === 'true' || upperStatus === 'ACTIVE' || upperStatus === 'YES') {
           return <FiCheckCircle className="h-3 w-3" />;
         }
