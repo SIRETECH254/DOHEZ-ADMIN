@@ -199,7 +199,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
       };
     }
 
-    if (badgeType === 'task-status' || badgeType === 'service-status') {
+    if (badgeType === 'task-status' || badgeType === 'service-status' || badgeType === 'vendor-type-status' || badgeType === 'vendor-category-status') {
       if (status === true || status === 'true' || upperStatus === 'ACTIVE' || upperStatus === 'YES') {
         return {
           bg: 'bg-green-100',
@@ -213,6 +213,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
         iconColor: '#DC2626',
       };
     }
+
 
     return {
       bg: 'bg-gray-100',
@@ -236,7 +237,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
       return 'Custom Role';
     }
 
-    if (badgeType === 'task-status' || badgeType === 'service-status') {
+    if (badgeType === 'task-status' || badgeType === 'service-status' || badgeType === 'vendor-type-status' || badgeType === 'vendor-category-status') {
       if (status === true || status === 'true' || String(status).toUpperCase() === 'ACTIVE' || String(status).toUpperCase() === 'YES') {
         return 'Active';
       }

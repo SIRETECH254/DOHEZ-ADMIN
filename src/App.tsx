@@ -29,6 +29,10 @@ import VendorTypeList from './app/authenticated/vendor-types/VendorTypeList';
 import CreateVendorType from './app/authenticated/vendor-types/CreateVendorType';
 import EditVendorType from './app/authenticated/vendor-types/EditVendorType';
 import VendorTypeDetail from './app/authenticated/vendor-types/VendorTypeDetail';
+import VendorCategoryList from './app/authenticated/vendor-categories/VendorCategoryList';
+import CreateVendorCategory from './app/authenticated/vendor-categories/CreateVendorCategory';
+import EditVendorCategory from './app/authenticated/vendor-categories/EditVendorCategory';
+import VendorCategoryDetail from './app/authenticated/vendor-categories/VendorCategoryDetail';
 import Layout from './components/layout/layout'
 
 export default function App() {
@@ -89,6 +93,12 @@ export default function App() {
           <Route path="/vendor-types/new" element={<CreateVendorType />} />
           <Route path="/vendor-types/:id" element={<VendorTypeDetail />} />
           <Route path="/vendor-types/:id/edit" element={<EditVendorType />} />
+
+          {/* Vendor Category Management Routes */}
+          <Route path="/vendor-categories" element={<VendorCategoryList />} />
+          <Route path="/vendor-categories/new" element={<CreateVendorCategory />} />
+          <Route path="/vendor-categories/:id" element={<VendorCategoryDetail />} />
+          <Route path="/vendor-categories/:id/edit" element={<EditVendorCategory />} />
           
         </Route>
 
