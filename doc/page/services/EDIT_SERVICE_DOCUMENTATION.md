@@ -29,15 +29,17 @@ import type { ITask } from '../../../types/api.types';
 
 #### `Service Data`
 - **Hook usage:** `const { data: serviceData, isLoading, isError, error } = useGetServiceById(serviceId!);`
-- **Purpose:** Fetches the existing service details. The service object is extracted via `serviceData?.service`.
+
+**Extraction:**
+```tsx
+const service = serviceData?.service;
+```
 
 #### `Update Service Mutation`
 - **Hook usage:** `const updateService = useUpdateService();`
-- **Purpose:** Handles the API request to update existing service details.
 
 #### `Tasks`
 - **Hook usage:** `const { data: tasksData } = useGetTasks({ all: true });`
-- **Purpose:** Fetches tasks to populate the parent category dropdown.
 
 ### Form State
 
@@ -53,7 +55,17 @@ const [form, setForm] = useState({
 ```
 
 #### `image` & `previewUrl`
-- **Image state:** stores the file and a local preview URL. `previewUrl` defaults to the existing service image.
+- **Image state:** stores the file and a local preview URL.
+```tsx
+const [image, setImage] = useState<File | null>(null);
+const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+```
+
+#### `inlineError`
+- **Inline error state:** stores local validation or API error messages.
+```tsx
+const [inlineError, setInlineError] = useState<string | null>(null);
+```
 
 ## Functions Involved
 
@@ -124,15 +136,49 @@ export interface UpdateServicePayload {
 }
 ```
 
+#### Payload
+```json
+{
+  "task": "string (ITask ID)",
+  "name": "string",
+  "description": "string",
+  "isActive": "boolean",
+  "image": "File | string | null"
+}
+```
+
 #### API
 ```typescript
 export const serviceAPI = {
+  // Update service details
   updateService: (serviceId: string, serviceData: UpdateServicePayload | FormData) =>
     serviceData instanceof FormData
       ? api.put(`/api/services/${serviceId}`, serviceData, { headers: { 'Content-Type': 'multipart/form-data' } })
       : api.put(`/api/services/${serviceId}`, serviceData),
 };
 ```
+
+#### Update Function
+```tsx
+const useUpdateService = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ serviceId, data }: { serviceId: string; data: UpdateServicePayload | FormData }) => {
+      const response = await serviceAPI.updateService(serviceId, data);
+      return response.data.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['services'] });
+      queryClient.invalidateQueries({ queryKey: ['service', variables.serviceId] });
+      console.log('Service updated successfully');
+    },
+    onError: (error: any) => console.error('Error updating service:', error),
+  });
+};
+```
+
+#### Contract
+`data.data` contains `{ service }`.
 
 #### Response
 ```json
@@ -141,20 +187,88 @@ export const serviceAPI = {
   "message": "Service updated successfully",
   "data": {
     "service": {
-      "_id": "...",
-      "name": "Updated Name",
-      "task": "...",
-      "isActive": true
+      "_id": "string",
+      "task": "string | ITask",
+      "name": "string",
+      "description": "string",
+      "image": "string | null",
+      "imagePublicId": "string | null",
+      "isActive": true,
+      "createdAt": "string",
+      "updatedAt": "string"
     }
   }
 }
 ```
 
-## UI Structure
-- Card-based layout mirroring the Create Service screen but pre-filled with data.
+#### Cache Invalidation
+On success, `['services']` and `['service', serviceId]` queries are invalidated to ensure the UI reflects the latest data.
 
-## Planned Layout & Sketch Wireframe
-- Matches `CreateService` with the title "Edit Service: [Name]".
+#### Error Handling
+API returns a message in `response.data.message`; fallback to a generic error message if unavailable.
+
+
+## UI Structure
+- **Screen shell:** `div` with standard page padding within the dashboard content area.
+- **Typography:** regular HTML elements styled with Tailwind utilities and custom `.label` classes.
+- **Layout helpers:** Card-based layout with a max-width container and a two-column grid for primary fields.
+- **Feedback:** Inline error banner shown above form fields; loading and error states for initial data fetch.
+
+## Planned Layout
+```
+┌───────────────────────────────┐
+│         Back Button           │
+├───────────────────────────────┤
+│            Header             │
+│   “Edit Service” (H1 style)   │
+├───────────────────────────────┤
+│       Image Upload Card       │
+├───────────────────────────────┤
+│      Service Name Input       │
+├───────────────────────────────┤
+│     Task Category Select      │
+├───────────────────────────────┤
+│       Description Input       │
+├───────────────────────────────┤
+│         Status Toggle         │
+├───────────────────────────────┤
+│        Primary Button         │
+├───────────────────────────────┤
+│  Inline error / status text   │
+└───────────────────────────────┘
+```
+
+## Sketch Wireframe
+```
+┌───────────────────────────────────────────────┐
+│  (<-) Back to Service                         │
+│                                               │
+│  Edit Service: [Service Name]                 │
+│                                               │
+│  ┌─────────────────────────────────────────┐  │
+│  │                                         │  │
+│  │            [ Image Preview ]            │  │
+│  │           (Click to upload)             │  │
+│  │                                         │  │
+│  └─────────────────────────────────────────┘  │
+│                                               │
+│  Service Name                                 │
+│  [_________________________________________]  │
+│                                               │
+│  Task Category                                │
+│  [Select a task category                [v]]  │
+│                                               │
+│  Description                                  │
+│  [_________________________________________]  │
+│  [_________________________________________]  │
+│                                               │
+│  Status: [ (O) Active ]                       │
+│                                               │
+│        [       Save Changes        ]          │
+│                                               │
+│  Inline error text (if any)                   │
+└───────────────────────────────────────────────┘
+```
 
 ## Form Inputs
 
