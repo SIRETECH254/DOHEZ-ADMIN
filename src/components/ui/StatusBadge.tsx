@@ -17,7 +17,7 @@ import {
   FiHelpCircle,
 } from 'react-icons/fi';
 
-export type BadgeType = 'user-role' | 'user-status' | 'verified-status' | 'system-role' | 'task-status' | 'service-status';
+export type BadgeType = 'user-role' | 'user-status' | 'verified-status' | 'system-role' | 'task-status' | 'service-status' | 'vendor-type-status';
 
 interface StatusBadgeProps {
   status: string | boolean;

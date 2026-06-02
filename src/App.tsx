@@ -25,6 +25,10 @@ import ServiceList from './app/authenticated/services/ServiceList';
 import CreateService from './app/authenticated/services/CreateService';
 import EditService from './app/authenticated/services/EditService';
 import ServiceDetail from './app/authenticated/services/ServiceDetail';
+import VendorTypeList from './app/authenticated/vendor-types/VendorTypeList';
+import CreateVendorType from './app/authenticated/vendor-types/CreateVendorType';
+import EditVendorType from './app/authenticated/vendor-types/EditVendorType';
+import VendorTypeDetail from './app/authenticated/vendor-types/VendorTypeDetail';
 import Layout from './components/layout/layout'
 
 export default function App() {
@@ -79,6 +83,12 @@ export default function App() {
           <Route path="/services/new" element={<CreateService />} />
           <Route path="/services/:serviceId" element={<ServiceDetail />} />
           <Route path="/services/:serviceId/edit" element={<EditService />} />
+
+          {/* Vendor Type Management Routes */}
+          <Route path="/vendor-types" element={<VendorTypeList />} />
+          <Route path="/vendor-types/new" element={<CreateVendorType />} />
+          <Route path="/vendor-types/:id" element={<VendorTypeDetail />} />
+          <Route path="/vendor-types/:id/edit" element={<EditVendorType />} />
           
         </Route>
 
