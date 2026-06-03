@@ -33,6 +33,10 @@ import VendorCategoryList from './app/authenticated/vendor-categories/VendorCate
 import CreateVendorCategory from './app/authenticated/vendor-categories/CreateVendorCategory';
 import EditVendorCategory from './app/authenticated/vendor-categories/EditVendorCategory';
 import VendorCategoryDetail from './app/authenticated/vendor-categories/VendorCategoryDetail';
+import VendorList from './app/authenticated/vendors/VendorList';
+import CreateVendor from './app/authenticated/vendors/CreateVendor';
+import EditVendor from './app/authenticated/vendors/EditVendor';
+import VendorDetail from './app/authenticated/vendors/VendorDetail';
 import Layout from './components/layout/layout'
 
 export default function App() {
@@ -40,6 +44,7 @@ export default function App() {
 
   return (
     <>
+
       <Routes>
 
         {/* Redirects */}
@@ -99,12 +104,17 @@ export default function App() {
           <Route path="/vendor-categories/new" element={<CreateVendorCategory />} />
           <Route path="/vendor-categories/:id" element={<VendorCategoryDetail />} />
           <Route path="/vendor-categories/:id/edit" element={<EditVendorCategory />} />
-          
+
+          {/* Vendor Management Routes */}
+          <Route path="/vendors" element={<VendorList />} />
+          <Route path="/vendors/new" element={<CreateVendor />} />
+          <Route path="/vendors/:id" element={<VendorDetail />} />
+          <Route path="/vendors/:id/edit" element={<EditVendor />} />
+
         </Route>
 
-        
-       
       </Routes>
-    </>
-  );
+
+      </>
+  )
 }

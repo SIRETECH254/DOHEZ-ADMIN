@@ -6,12 +6,16 @@ interface IUserNames {
 }
 
 /**
- * Helper to generate initials from a user object or names.
- * @param user - Object containing firstName and lastName.
- * @returns The user's initials or 'U' as a fallback.
+ * Helper to generate initials from a user object, names, or a single string.
+ * @param data - Object containing firstName and lastName, or a single name string.
+ * @returns The initials or 'U' as a fallback.
  */
-export const getInitials = (user?: IUserNames) => {
-  const initials = [user?.firstName, user?.lastName]
+export const getInitials = (data?: IUserNames | string) => {
+  if (typeof data === 'string') {
+    return data.substring(0, 2).toUpperCase() || 'U';
+  }
+  
+  const initials = [data?.firstName, data?.lastName]
     .filter(Boolean)
     .map((value) => value?.[0]?.toUpperCase())
     .join('')
@@ -19,10 +23,13 @@ export const getInitials = (user?: IUserNames) => {
 }
 
 /**
- * Hook to generate initials from a user object.
- * @param user - Object containing firstName and lastName.
- * @returns The user's initials or 'U' as a fallback.
+ * Hook to generate initials from a user object or a string.
+ * @param data - Object containing firstName and lastName, or a single name string.
+ * @returns The initials or 'U' as a fallback.
  */
-export const useInitials = (user?: IUserNames) => {
-  return useMemo(() => getInitials(user), [user?.firstName, user?.lastName])
+export const useInitials = (data?: IUserNames | string) => {
+  return useMemo(() => getInitials(data), [
+    typeof data === 'string' ? data : data?.firstName,
+    typeof data === 'string' ? undefined : data?.lastName
+  ])
 }

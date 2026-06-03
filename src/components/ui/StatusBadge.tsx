@@ -17,7 +17,7 @@ import {
   FiHelpCircle,
 } from 'react-icons/fi';
 
-export type BadgeType = 'user-role' | 'user-status' | 'verified-status' | 'system-role' | 'task-status' | 'service-status' | 'vendor-type-status' | 'vendor-category-status';
+export type BadgeType = 'user-role' | 'user-status' | 'verified-status' | 'system-role' | 'task-status' | 'service-status' | 'vendor-type-status' | 'vendor-category-status' | 'vendor-status';
 
 interface StatusBadgeProps {
   status: string | boolean;
@@ -85,6 +85,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
       case 'service-status':
       case 'vendor-type-status':
       case 'vendor-category-status':
+      case 'vendor-status':
         if (status === true || status === 'true' || upperStatus === 'ACTIVE' || upperStatus === 'YES') {
           return <FiCheckCircle className="h-3 w-3" />;
         }
@@ -201,7 +202,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
       };
     }
 
-    if (badgeType === 'task-status' || badgeType === 'service-status' || badgeType === 'vendor-type-status' || badgeType === 'vendor-category-status') {
+    if (badgeType === 'task-status' || badgeType === 'service-status' || badgeType === 'vendor-type-status' || badgeType === 'vendor-category-status' || badgeType === 'vendor-status') {
       if (status === true || status === 'true' || upperStatus === 'ACTIVE' || upperStatus === 'YES') {
         return {
           bg: 'bg-green-100',
@@ -239,7 +240,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
       return 'Custom Role';
     }
 
-    if (badgeType === 'task-status' || badgeType === 'service-status' || badgeType === 'vendor-type-status' || badgeType === 'vendor-category-status') {
+    if (badgeType === 'task-status' || badgeType === 'service-status' || badgeType === 'vendor-type-status' || badgeType === 'vendor-category-status' || badgeType === 'vendor-status') {
       if (status === true || status === 'true' || String(status).toUpperCase() === 'ACTIVE' || String(status).toUpperCase() === 'YES') {
         return 'Active';
       }
