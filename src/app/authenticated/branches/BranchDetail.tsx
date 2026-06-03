@@ -4,7 +4,7 @@ import { HiOutlineArrowLeft, HiOutlinePencil } from 'react-icons/hi';
 import { FiAlertTriangle } from 'react-icons/fi';
 import { MdLocationOn } from 'react-icons/md';
 import { useGetBranchById } from '../../../tanstack/useBranches';
-import type { IBranch, IVendor } from '../../../types/api.types';
+import type { IVendor } from '../../../types/api.types';
 
 /**
  * Skeleton component for BranchDetail loading state
