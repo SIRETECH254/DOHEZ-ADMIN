@@ -37,6 +37,10 @@ import VendorList from './app/authenticated/vendors/VendorList';
 import CreateVendor from './app/authenticated/vendors/CreateVendor';
 import EditVendor from './app/authenticated/vendors/EditVendor';
 import VendorDetail from './app/authenticated/vendors/VendorDetail';
+import BranchesList from './app/authenticated/branches/BranchesList';
+import CreateBranch from './app/authenticated/branches/CreateBranch';
+import EditBranch from './app/authenticated/branches/EditBranch';
+import BranchDetail from './app/authenticated/branches/BranchDetail';
 import Layout from './components/layout/layout'
 
 export default function App() {
@@ -110,6 +114,12 @@ export default function App() {
           <Route path="/vendors/new" element={<CreateVendor />} />
           <Route path="/vendors/:id" element={<VendorDetail />} />
           <Route path="/vendors/:id/edit" element={<EditVendor />} />
+
+          {/* Branch Management Routes */}
+          <Route path="/branches" element={<BranchesList />} />
+          <Route path="/branches/new" element={<CreateBranch />} />
+          <Route path="/branches/:id" element={<BranchDetail />} />
+          <Route path="/branches/:id/edit" element={<EditBranch />} />
 
         </Route>
 

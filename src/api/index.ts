@@ -482,7 +482,10 @@ export const vendorAPI = {
 // ============================================
 export const branchAPI = {
   // Create a new branch
-  createBranch: (branchData: CreateBranchPayload) => api.post('/api/branches', branchData),
+  createBranch: (branchData: CreateBranchPayload | FormData) =>
+    branchData instanceof FormData
+      ? api.post('/api/branches', branchData, { headers: { 'Content-Type': 'multipart/form-data' } })
+      : api.post('/api/branches', branchData),
 
   // Get all branches
   getBranches: (params?: GetBranchesParams) => api.get('/api/branches', { params }),

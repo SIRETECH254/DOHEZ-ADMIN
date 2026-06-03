@@ -9,7 +9,7 @@ const DEFAULT_GC_TIME = 1000 * 60 * 10;
 export const useCreateBranch = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: CreateBranchPayload) => {
+    mutationFn: async (data: CreateBranchPayload | FormData) => {
       const response = await branchAPI.createBranch(data);
       return response.data.data;
     },
