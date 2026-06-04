@@ -19,5 +19,6 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Vendor Categories', path: '/vendor-categories', icon: MdCategory, end: false },
   { label: 'Vendors', path: '/vendors', icon: MdStore, end: false },
   { label: 'Branches', path: '/branches', icon: MdLocationOn, end: false },
+  { label: 'Product Types', path: '/product-types', icon: MdCategory, end: false },
   
 ]

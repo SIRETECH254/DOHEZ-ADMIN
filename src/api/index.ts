@@ -69,6 +69,10 @@ import type {
   CreateProductPayload,
   UpdateProductPayload,
   GetProductsParams,
+  // Product Variant types
+  CreateProductVariantPayload,
+  UpdateProductVariantPayload,
+  GetProductVariantsParams,
   // Product Modifier types
   CreateProductModifierPayload,
   UpdateProductModifierPayload,
@@ -221,7 +225,7 @@ export const paymentAPI = {
 
   // Pay appointment invoice
   payAppointmentInvoice: (data: { appointmentId: string, method: string, payerPhone: string }) =>
-    api.post('/api/payments/appointments/pay', data),
+    api.post(`/api/payments/appointments/pay`, data),
 
   // Initiate payment for an invoice
   payInvoice: (data: { invoiceId: string, method: string, amount: number, payerPhone: string }) =>
@@ -583,6 +587,22 @@ export const productAPI = {
   // Update product SKU
   updateProductSKU: (productId: string, skuId: string, skuData: any) =>
     api.put(`/api/products/${productId}/skus/${skuId}`, skuData),
+};
+
+// ============================================
+// Product Variant API
+// ============================================
+export const variantAPI = {
+  createVariant: (variantData: CreateProductVariantPayload) =>
+    api.post('/api/product-variants', variantData),
+  getVariants: (params?: GetProductVariantsParams) =>
+    api.get('/api/product-variants', { params }),
+  getVariantById: (variantId: string) =>
+    api.get(`/api/product-variants/${variantId}`),
+  updateVariant: (variantId: string, variantData: UpdateProductVariantPayload) =>
+    api.put(`/api/product-variants/${variantId}`, variantData),
+  deleteVariant: (variantId: string) =>
+    api.delete(`/api/product-variants/${variantId}`),
 };
 
 // ============================================

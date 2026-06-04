@@ -945,14 +945,27 @@ export interface UpdateProductModifierPayload {
   maxSelection?: number;
 }
 
-// Add these interfaces below IService
-export interface ISelectedVariantOption {
-  variantId: string;
-  optionId: string;
+export interface CreateProductVariantPayload {
+  name: string;
+  options: { name: string; price: number }[];
+}
+
+export interface UpdateProductVariantPayload {
+  name?: string;
+  options?: { _id?: string; name: string; price: number }[];
+}
+
+export interface GetProductVariantsParams extends PaginationParams {
+  search?: string;
 }
 
 export interface ISelectedModifierOption {
   modifierId: string;
+  optionId: string;
+}
+
+export interface ISelectedVariantOption {
+  variantId: string;
   optionId: string;
 }
 

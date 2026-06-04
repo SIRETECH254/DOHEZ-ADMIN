@@ -41,6 +41,10 @@ import BranchesList from './app/authenticated/branches/BranchesList';
 import CreateBranch from './app/authenticated/branches/CreateBranch';
 import EditBranch from './app/authenticated/branches/EditBranch';
 import BranchDetail from './app/authenticated/branches/BranchDetail';
+import ProductTypeList from './app/authenticated/product-types/ProductTypeList';
+import CreateProductType from './app/authenticated/product-types/CreateProductType';
+import EditProductType from './app/authenticated/product-types/EditProductType';
+import ProductTypeDetail from './app/authenticated/product-types/ProductTypeDetail';
 import Layout from './components/layout/layout'
 
 export default function App() {
@@ -120,6 +124,12 @@ export default function App() {
           <Route path="/branches/new" element={<CreateBranch />} />
           <Route path="/branches/:id" element={<BranchDetail />} />
           <Route path="/branches/:id/edit" element={<EditBranch />} />
+
+          {/* Product Type Management Routes */}
+          <Route path="/product-types" element={<ProductTypeList />} />
+          <Route path="/product-types/new" element={<CreateProductType />} />
+          <Route path="/product-types/:id" element={<ProductTypeDetail />} />
+          <Route path="/product-types/:id/edit" element={<EditProductType />} />
 
         </Route>
 
