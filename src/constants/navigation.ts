@@ -1,5 +1,5 @@
 import type { IconType } from 'react-icons'
-import {MdDashboard, MdPeople, MdSecurity, MdAssignment, MdMiscellaneousServices, MdStore, MdCategory, MdLocationOn} from 'react-icons/md'
+import { MdDashboard, MdPeople, MdSecurity, MdAssignment, MdMiscellaneousServices, MdStore, MdCategory, MdLocationOn, MdLayers, MdTune, MdCallSplit } from 'react-icons/md'
 
 export type NavItem = {
   label: string
@@ -19,6 +19,10 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Vendor Categories', path: '/vendor-categories', icon: MdCategory, end: false },
   { label: 'Vendors', path: '/vendors', icon: MdStore, end: false },
   { label: 'Branches', path: '/branches', icon: MdLocationOn, end: false },
-  { label: 'Product Types', path: '/product-types', icon: MdCategory, end: false },
+  { label: 'Product Types', path: '/product-types', icon: MdLayers, end: false },
+  { label: 'Product Categories', path: '/product-categories', icon: MdCategory, end: false },
+  { label: 'Product Modifiers', path: '/product-modifiers', icon: MdTune, end: false },
+  { label: 'Product Variants', path: '/product-variants', icon: MdCallSplit, end: false },
+  { label: 'Products', path: '/products', icon: MdCategory, end: false },
   
 ]

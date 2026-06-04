@@ -45,6 +45,22 @@ import ProductTypeList from './app/authenticated/product-types/ProductTypeList';
 import CreateProductType from './app/authenticated/product-types/CreateProductType';
 import EditProductType from './app/authenticated/product-types/EditProductType';
 import ProductTypeDetail from './app/authenticated/product-types/ProductTypeDetail';
+import ProductCategoryList from './app/authenticated/product-categories/ProductCategoryList';
+import CreateProductCategory from './app/authenticated/product-categories/CreateProductCategory';
+import EditProductCategory from './app/authenticated/product-categories/EditProductCategory';
+import ProductCategoryDetail from './app/authenticated/product-categories/ProductCategoryDetail';
+import ProductModifierList from './app/authenticated/product-modifiers/ProductModifierList';
+import CreateProductModifier from './app/authenticated/product-modifiers/CreateProductModifier';
+import EditProductModifier from './app/authenticated/product-modifiers/EditProductModifier';
+import ProductModifierDetail from './app/authenticated/product-modifiers/ProductModifierDetail';
+import ProductVariantList from './app/authenticated/product-variants/ProductVariantList';
+import CreateProductVariant from './app/authenticated/product-variants/CreateProductVariant';
+import EditProductVariant from './app/authenticated/product-variants/EditProductVariant';
+import ProductVariantDetail from './app/authenticated/product-variants/ProductVariantDetail';
+import ProductList from './app/authenticated/products/ProductList';
+import CreateProduct from './app/authenticated/products/CreateProduct';
+import EditProduct from './app/authenticated/products/EditProduct';
+import ProductDetail from './app/authenticated/products/ProductDetail';
 import Layout from './components/layout/layout'
 
 export default function App() {
@@ -130,6 +146,30 @@ export default function App() {
           <Route path="/product-types/new" element={<CreateProductType />} />
           <Route path="/product-types/:id" element={<ProductTypeDetail />} />
           <Route path="/product-types/:id/edit" element={<EditProductType />} />
+
+          {/* Product Category Management Routes */}
+          <Route path="/product-categories" element={<ProductCategoryList />} />
+          <Route path="/product-categories/new" element={<CreateProductCategory />} />
+          <Route path="/product-categories/:id" element={<ProductCategoryDetail />} />
+          <Route path="/product-categories/:id/edit" element={<EditProductCategory />} />
+
+          {/* Product Modifier Management Routes */}
+          <Route path="/product-modifiers" element={<ProductModifierList />} />
+          <Route path="/product-modifiers/new" element={<CreateProductModifier />} />
+          <Route path="/product-modifiers/:id" element={<ProductModifierDetail />} />
+          <Route path="/product-modifiers/:id/edit" element={<EditProductModifier />} />
+
+          {/* Product Variant Management Routes */}
+          <Route path="/product-variants" element={<ProductVariantList />} />
+          <Route path="/product-variants/new" element={<CreateProductVariant />} />
+          <Route path="/product-variants/:id" element={<ProductVariantDetail />} />
+          <Route path="/product-variants/:id/edit" element={<EditProductVariant />} />
+
+          {/* Product Management Routes */}
+          <Route path="/products" element={<ProductList />} />
+          <Route path="/products/new" element={<CreateProduct />} />
+          <Route path="/products/:id" element={<ProductDetail />} />
+          <Route path="/products/:id/edit" element={<EditProduct />} />
 
         </Route>
 

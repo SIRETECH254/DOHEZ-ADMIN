@@ -593,16 +593,33 @@ export const productAPI = {
 // Product Variant API
 // ============================================
 export const variantAPI = {
+  // Attach variant to product
+  attach: (data: { productId: string; variantId: string }) =>
+    api.post('/api/variants/attach', data),
+
+  // Detach variant from product
+  detach: (data: { productId: string; variantId: string }) =>
+    api.post('/api/variants/detach', data),
+
+  // Create a new variant
   createVariant: (variantData: CreateProductVariantPayload) =>
-    api.post('/api/product-variants', variantData),
+    api.post('/api/variants', variantData),
+
+  // Get all variants
   getVariants: (params?: GetProductVariantsParams) =>
-    api.get('/api/product-variants', { params }),
+    api.get('/api/variants', { params }),
+
+  // Get single variant details
   getVariantById: (variantId: string) =>
-    api.get(`/api/product-variants/${variantId}`),
+    api.get(`/api/variants/${variantId}`),
+
+  // Update variant details
   updateVariant: (variantId: string, variantData: UpdateProductVariantPayload) =>
-    api.put(`/api/product-variants/${variantId}`, variantData),
+    api.put(`/api/variants/${variantId}`, variantData),
+
+  // Delete variant
   deleteVariant: (variantId: string) =>
-    api.delete(`/api/product-variants/${variantId}`),
+    api.delete(`/api/variants/${variantId}`),
 };
 
 // ============================================
