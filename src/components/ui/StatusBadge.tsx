@@ -86,6 +86,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
       case 'vendor-type-status':
       case 'vendor-category-status':
       case 'vendor-status':
+      case 'product-status':
         if (status === true || status === 'true' || upperStatus === 'ACTIVE' || upperStatus === 'YES') {
           return <FiCheckCircle className="h-3 w-3" />;
         }
@@ -202,7 +203,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
       };
     }
 
-    if (badgeType === 'task-status' || badgeType === 'service-status' || badgeType === 'vendor-type-status' || badgeType === 'vendor-category-status' || badgeType === 'vendor-status') {
+    if (badgeType === 'task-status' || badgeType === 'service-status' || badgeType === 'vendor-type-status' || badgeType === 'vendor-category-status' || badgeType === 'vendor-status' || badgeType === 'product-status') {
       if (status === true || status === 'true' || upperStatus === 'ACTIVE' || upperStatus === 'YES') {
         return {
           bg: 'bg-green-100',
@@ -240,7 +241,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
       return 'Custom Role';
     }
 
-    if (badgeType === 'task-status' || badgeType === 'service-status' || badgeType === 'vendor-type-status' || badgeType === 'vendor-category-status' || badgeType === 'vendor-status') {
+    if (badgeType === 'task-status' || badgeType === 'service-status' || badgeType === 'vendor-type-status' || badgeType === 'vendor-category-status' || badgeType === 'vendor-status' || badgeType === 'product-status') {
       if (status === true || status === 'true' || String(status).toUpperCase() === 'ACTIVE' || String(status).toUpperCase() === 'YES') {
         return 'Active';
       }
