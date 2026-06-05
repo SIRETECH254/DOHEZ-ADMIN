@@ -916,8 +916,9 @@ export interface UpdatePackagingPayload {
 
 export interface IModifierOption {
   _id: string;
-  name: string;
-  price: number;
+  name?: string;
+  value?: string;
+  price?: number;
 }
 
 export interface IProductModifier {
@@ -972,7 +973,7 @@ export interface ISelectedVariantOption {
 export interface IVariant {
   _id: string;
   name: string;
-  options: { _id: string; name: string; price: number }[];
+  options: { _id: string; name?: string; value?: string; price?: number }[];
 }
 
 export interface IProduct {
@@ -996,6 +997,18 @@ export interface IProduct {
   trackInventory: boolean;
   duration?: string;
   buffertime?: string;
+  venue?: string;
+  location?: {
+    address?: string;
+    coordinates?: { lat?: number; lng?: number };
+    place_id?: string;
+  };
+  startDate?: string;
+  endDate?: string;
+  openAt?: string;
+  ageLimit?: number;
+  dresscode?: string;
+  maxTicket?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -1032,6 +1045,8 @@ export interface CreateProductPayload {
   service: string;
   variants?: string[];
   selectedVariantOptions?: any[];
+  modifiers?: string[];
+  selectedModifierOptions?: any[];
   status?: boolean;
   trackInventory?: boolean;
   duration?: string;
@@ -1049,6 +1064,8 @@ export interface UpdateProductPayload {
   service?: string;
   variants?: string[];
   selectedVariantOptions?: any[];
+  modifiers?: string[];
+  selectedModifierOptions?: any[];
   status?: boolean;
   trackInventory?: boolean;
   images?: any[];
