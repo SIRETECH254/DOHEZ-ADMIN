@@ -519,7 +519,7 @@ const CreateProduct: React.FC = () => {
                                     </div>
                                     <div className="flex flex-wrap gap-1.5">
                                         {selectedOptions.map(so => {
-                                            const opt = v?.options.find(o => o._id === so.optionId);
+                                            const opt = v?.options.find((o: any) => o._id === so.optionId);
                                             return (
                                                 <span key={so.optionId} className="inline-flex items-center px-2 py-1 rounded-lg bg-gray-50 border border-gray-100 text-[11px] font-medium text-gray-700">
                                                     {opt?.value || opt?.name || 'Option'}
@@ -557,7 +557,7 @@ const CreateProduct: React.FC = () => {
                                     </div>
                                     <div className="flex flex-wrap gap-1.5">
                                         {selectedOptions.map(so => {
-                                            const opt = m?.options.find(o => o._id === so.optionId);
+                                            const opt = m?.options.find((o: any) => o._id === so.optionId);
                                             return (
                                                 <span key={so.optionId} className="inline-flex items-center px-2 py-1 rounded-lg bg-gray-50 border border-gray-100 text-[11px] font-medium text-gray-700">
                                                     {opt?.value || opt?.name || 'Option'}

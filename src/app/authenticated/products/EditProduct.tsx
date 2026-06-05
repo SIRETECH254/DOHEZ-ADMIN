@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { MdArrowBack, MdCameraAlt, MdRemove } from 'react-icons/md';
+import { MdArrowBack, MdCameraAlt } from 'react-icons/md';
 import { 
   HiCheck, 
   HiOutlineClipboardCheck, 
@@ -577,7 +577,7 @@ const EditProduct: React.FC = () => {
                                     {selectedOptions.length > 0 && (
                                         <div className="pl-4 flex flex-wrap gap-1">
                                             {selectedOptions.map(so => {
-                                                const opt = v?.options.find(o => o._id === so.optionId);
+                                                const opt = v?.options.find((o: any) => o._id === so.optionId);
                                                 return <span key={so.optionId} className="text-[10px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{opt?.value || opt?.name || so.optionId}</span>;
                                             })}
                                         </div>
@@ -605,7 +605,7 @@ const EditProduct: React.FC = () => {
                                     {selectedOptions.length > 0 && (
                                         <div className="pl-4 flex flex-wrap gap-1">
                                             {selectedOptions.map(so => {
-                                                const opt = m?.options.find(o => o._id === so.optionId);
+                                                const opt = m?.options.find((o: any) => o._id === so.optionId);
                                                 return <span key={so.optionId} className="text-[10px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{opt?.value || opt?.name || so.optionId}</span>;
                                             })}
                                         </div>

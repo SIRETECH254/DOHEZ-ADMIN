@@ -35,10 +35,10 @@ const Cart: React.FC = () => {
       </header>
 
       <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 space-y-6">
-        {cart.cartGroups.map(group => (
+        {cart.cartGroups.map((group: any) => (
           <div key={group._id} className="space-y-4">
             <h3 className="font-bold text-gray-900">{(group.vendorId as any).name} - {(group.branchId as any).name}</h3>
-            {group.items.map(item => (
+            {group.items.map((item: any) => (
               <div key={item._id} className="flex items-center gap-4 p-4 border border-gray-100 rounded-2xl">
                 <div className="flex-1">
                   <h4 className="font-semibold text-gray-900">{(item.productId as any).name}</h4>

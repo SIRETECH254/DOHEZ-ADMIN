@@ -1,9 +1,8 @@
-import React, { useCallback, useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { FiSearch, FiList, FiAlertTriangle, FiChevronDown, FiChevronUp, FiEdit2, FiCheck, FiX } from 'react-icons/fi';
 import { useGetProducts, useUpdateProductSKU } from '../../../tanstack/useProducts';
 import { useGetProductVariants } from '../../../tanstack/useProductVariants';
 import Pagination from '../../../components/ui/Pagination';
-import StatusBadge from '../../../components/ui/StatusBadge';
 import type { IProduct, ISKU, IVariant } from '../../../types/api.types';
 import { getInitials } from '../../../utils';
 

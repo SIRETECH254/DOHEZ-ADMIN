@@ -5,7 +5,7 @@ import { FiAlertTriangle, FiShoppingCart } from 'react-icons/fi';
 import { useGetProductById } from '../../../tanstack/useProducts';
 import { useAddToCart } from '../../../tanstack/useCart';
 import StatusBadge from '../../../components/ui/StatusBadge';
-import type { IProductCategory, IVariant, IProductModifier, ISelectedVariantOption, ISelectedModifierOption } from '../../../types/api.types';
+import type { IProductCategory, IVariant, IProductModifier } from '../../../types/api.types';
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -89,7 +89,7 @@ const ProductDetail: React.FC = () => {
     setSelectedVariants(prev => ({ ...prev, [variantId]: optionId }));
   };
 
-  const handleModifierToggle = (modifierId: string, optionId: string, min: number, max: number) => {
+  const handleModifierToggle = (modifierId: string, optionId: string, _min: number, max: number) => {
     setSelectedModifiers(prev => {
       const current = prev[modifierId] || [];
       const isSelected = current.includes(optionId);
