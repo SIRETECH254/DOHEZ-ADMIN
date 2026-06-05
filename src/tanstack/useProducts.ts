@@ -90,6 +90,7 @@ export const useUpdateProductSKU = () => {
       return response.data.data;
     },
     onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.invalidateQueries({ queryKey: ['product', variables.productId] });
       console.log('Product SKU updated successfully');
     },

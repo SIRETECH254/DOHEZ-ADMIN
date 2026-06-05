@@ -7,9 +7,11 @@ import {
   MdPerson,
   MdLogout,
 } from 'react-icons/md'
+import { FiShoppingCart } from 'react-icons/fi'
 import { useAuth } from '../../contexts/AuthContext'
 import { NAV_ITEMS } from '../../constants/navigation'
 import { useInitials } from '../../utils'
+import { useGetCart } from '../../tanstack/useCart'
 
 
 type NavbarProps = {
@@ -23,6 +25,8 @@ const Header = ({ isSidebarOpen, onToggleSidebar }: NavbarProps) => {
   const navigate = useNavigate()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const userInitials = useInitials(user ?? undefined)
+  const { data: cartData } = useGetCart()
+  const totalItems = cartData?.cart?.totalItems ?? 0
 
 
   // Resolve the active page label from the current route.
@@ -74,8 +78,21 @@ const Header = ({ isSidebarOpen, onToggleSidebar }: NavbarProps) => {
         </div>
 
         {/* Right section: profile menu */}
-        <div className="flex items-center gap-3">
-
+        <div className="flex items-center gap-5">
+          {/* Cart Icon */}
+          <button
+            type="button"
+            onClick={() => navigate('/cart')}
+            className="relative flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+            aria-label="View cart"
+          >
+            <FiShoppingCart size={20} />
+            {totalItems > 0 && (
+              <span className="absolute -top-1 -left-1 flex h-5 w-5 items-center justify-center rounded-full bg-brand-primary text-[10px] font-bold text-white ring-2 ring-white">
+                {totalItems}
+              </span>
+            )}
+          </button>
 
           {/* Profile dropdown trigger + menu */}
           <div className="relative">

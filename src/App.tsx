@@ -61,6 +61,8 @@ import ProductList from './app/authenticated/products/ProductList';
 import CreateProduct from './app/authenticated/products/CreateProduct';
 import EditProduct from './app/authenticated/products/EditProduct';
 import ProductDetail from './app/authenticated/products/ProductDetail';
+import Cart from './app/authenticated/cart/Cart';
+import InventoryList from './app/authenticated/inventory/InventoryList';
 import Layout from './components/layout/layout'
 
 export default function App() {
@@ -170,6 +172,10 @@ export default function App() {
           <Route path="/products/new" element={<CreateProduct />} />
           <Route path="/products/:id" element={<ProductDetail />} />
           <Route path="/products/:id/edit" element={<EditProduct />} />
+          <Route path="/cart" element={<Cart />} />
+
+          {/* Inventory Management Routes */}
+          <Route path="/inventory" element={<InventoryList />} />
 
         </Route>
 
