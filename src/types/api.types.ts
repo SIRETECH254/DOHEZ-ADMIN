@@ -642,10 +642,10 @@ export interface IInvoiceLineItem {
 
 export interface IInvoice {
   _id: string;
-  order?: string;
-  appointment?: string;
-  branch: string;
-  vendor: string;
+  order?: string | { _id: string; orderNumber: string };
+  appointment?: string | null;
+  branch: string | { _id: string; name: string };
+  vendor: string | { _id: string; name: string };
   invoiceNumber: string;
   lineItems: IInvoiceLineItem[];
   subtotal: number;
@@ -659,6 +659,7 @@ export interface IInvoice {
   createdAt: string;
   updatedAt: string;
 }
+
 
 // ============================================
 // Payment Types

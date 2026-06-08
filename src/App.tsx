@@ -61,7 +61,15 @@ import ProductList from './app/authenticated/products/ProductList';
 import CreateProduct from './app/authenticated/products/CreateProduct';
 import EditProduct from './app/authenticated/products/EditProduct';
 import ProductDetail from './app/authenticated/products/ProductDetail';
+import OrderList from './app/authenticated/orders/OrderList';
+import OrderDetail from './app/authenticated/orders/OrderDetail';
+import InvoiceList from './app/authenticated/invoices/InvoiceList';
+import InvoiceDetail from './app/authenticated/invoices/InvoiceDetail';
+import ReceiptList from './app/authenticated/receipts/ReceiptList';
+import ReceiptDetail from './app/authenticated/receipts/ReceiptDetail';
 import Cart from './app/authenticated/cart/Cart';
+import Checkout from './app/authenticated/cart/Checkout';
+import Payment from './app/authenticated/payment/Payment';
 import InventoryList from './app/authenticated/inventory/InventoryList';
 import Layout from './components/layout/layout'
 
@@ -172,7 +180,22 @@ export default function App() {
           <Route path="/products/new" element={<CreateProduct />} />
           <Route path="/products/:id" element={<ProductDetail />} />
           <Route path="/products/:id/edit" element={<EditProduct />} />
+          
+          {/* Order Management Routes */}
+          <Route path="/orders" element={<OrderList />} />
+          <Route path="/orders/:id" element={<OrderDetail />} />
+
+          {/* Invoice Management Routes */}
+          <Route path="/invoices" element={<InvoiceList />} />
+          <Route path="/invoices/:id" element={<InvoiceDetail />} />
+
+          {/* Receipt Management Routes */}
+          <Route path="/receipts" element={<ReceiptList />} />
+          <Route path="/receipts/:id" element={<ReceiptDetail />} />
+
           <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/payment/:invoiceId/:phone/:orderId" element={<Payment />} />
 
           {/* Inventory Management Routes */}
           <Route path="/inventory" element={<InventoryList />} />

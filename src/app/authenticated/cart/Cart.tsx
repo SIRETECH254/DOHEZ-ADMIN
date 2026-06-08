@@ -136,8 +136,11 @@ const Cart: React.FC = () => {
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="font-bold text-gray-700">{group.branchId.name}</h3>
                             <div className="flex items-center gap-4">
-                                <button className="px-4 py-1.5 bg-brand-primary text-white text-[10px] font-bold rounded-lg hover:bg-brand-primary/90 transition-colors">
-                                    Order 
+                                <button 
+                                  onClick={() => navigate(`/checkout?vendorId=${vendorGroup.vendor._id}&branchId=${group.branchId._id}`)}
+                                  className="px-4 py-1.5 bg-brand-primary text-white text-[10px] font-bold rounded-lg hover:bg-brand-primary/90 transition-colors"
+                                >
+                                    Checkout 
                                 </button>
                                 <button onClick={() => toggleBranch(group._id)}>
                                     <FiChevronDown className={`text-gray-400 transition-transform duration-200 ${expandedBranches[group._id] ? 'rotate-180' : ''}`} />

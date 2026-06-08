@@ -33,3 +33,17 @@ export const useInitials = (data?: IUserNames | string) => {
     typeof data === 'string' ? undefined : data?.lastName
   ])
 }
+
+/**
+ * Formats a number as a currency string.
+ * @param amount - The numeric amount to format.
+ * @param currency - The currency code (default: 'KES').
+ * @returns A formatted currency string.
+ */
+export const formatCurrency = (amount: number, currency: string = 'KES') => {
+  return new Intl.NumberFormat('en-KE', {
+    style: 'currency',
+    currency: currency,
+  }).format(amount);
+};
+
