@@ -122,6 +122,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
             return <FiXCircle className="h-3 w-3" />;
           case 'PENDING':
             return <FiClock className="h-3 w-3" />;
+          case 'PARTIAL':
           case 'PARTIALLY_REFUNDED':
           case 'REFUNDED':
             return <FiAlertCircle className="h-3 w-3" />;
@@ -240,7 +241,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
       };
     }
 
-    if (badgeType === 'task-status' || badgeType === 'service-status' || badgeType === 'vendor-type-status' || badgeType === 'vendor-category-status' || badgeType === 'vendor-status' || badgeType === 'product-status' || badgeType === 'invoice-status') {
+    if (badgeType === 'task-status' || badgeType === 'service-status' || badgeType === 'vendor-type-status' || badgeType === 'vendor-category-status' || badgeType === 'vendor-status' || badgeType === 'product-status') {
       if (status === true || status === 'true' || upperStatus === 'ACTIVE' || upperStatus === 'YES') {
         return {
           bg: 'bg-green-100',
@@ -284,6 +285,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
           return { bg: 'bg-red-100', text: 'text-red-700', iconColor: '#DC2626' };
         case 'PENDING':
           return { bg: 'bg-yellow-100', text: 'text-yellow-700', iconColor: '#CA8A04' };
+        case 'PARTIAL':
         case 'PARTIALLY_REFUNDED':
         case 'REFUNDED':
           return { bg: 'bg-orange-100', text: 'text-orange-700', iconColor: '#EA580C' };
@@ -315,7 +317,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
       return 'Custom Role';
     }
 
-    if (badgeType === 'task-status' || badgeType === 'service-status' || badgeType === 'vendor-type-status' || badgeType === 'vendor-category-status' || badgeType === 'vendor-status' || badgeType === 'product-status' || badgeType === 'invoice-status') {
+    if (badgeType === 'task-status' || badgeType === 'service-status' || badgeType === 'vendor-type-status' || badgeType === 'vendor-category-status' || badgeType === 'vendor-status' || badgeType === 'product-status') {
       if (status === true || status === 'true' || String(status).toUpperCase() === 'ACTIVE' || String(status).toUpperCase() === 'YES') {
         return 'Active';
       }

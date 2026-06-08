@@ -206,7 +206,7 @@
     }
 
     .table-cell {
-        @apply px-6 py-4;
+        @apply px-6 py-4 whitespace-nowrap;
     }
 
     .table-cell-text {
@@ -214,7 +214,7 @@
     }
 
     .table-cell-center {
-        @apply px-6 py-4 text-center;
+        @apply px-6 py-4 text-center whitespace-nowrap;
     }
 
     /* Table cell content helpers */
