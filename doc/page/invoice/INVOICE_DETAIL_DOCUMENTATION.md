@@ -43,6 +43,10 @@ const branch = invoice?.branch as { _id: string; name: string };
 const order = invoice?.order as { _id: string; orderNumber: string };
 ```
 
+## Functions Involved
+
+- **None:** This component is primarily a display component and does not contain complex business logic functions.
+
 ## API Integration
 
 ### `GET /api/invoices/:invoiceId`
