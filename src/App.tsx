@@ -195,7 +195,7 @@ export default function App() {
 
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
-          <Route path="/payment/:invoiceId/:phone/:orderId" element={<Payment />} />
+          <Route path="/payment" element={<Payment />} />
 
           {/* Inventory Management Routes */}
           <Route path="/inventory" element={<InventoryList />} />

@@ -143,7 +143,7 @@ export const useQueryMpesaStatus = (checkoutId: string) => {
       const response = await paymentAPI.queryMpesaByCheckoutId(checkoutId);
       return response.data.data;
     },
-    enabled: !!checkoutId,
+    enabled: false,
     staleTime: 0,
     gcTime: DEFAULT_GC_TIME,
   });

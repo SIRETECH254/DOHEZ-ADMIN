@@ -17,7 +17,7 @@ import {
   FiHelpCircle,
 } from 'react-icons/fi';
 
-export type BadgeType = 'user-role' | 'user-status' | 'verified-status' | 'system-role' | 'task-status' | 'service-status' | 'vendor-type-status' | 'vendor-category-status' | 'vendor-status' | 'product-status';
+export type BadgeType = 'user-role' | 'user-status' | 'verified-status' | 'system-role' | 'task-status' | 'service-status' | 'vendor-type-status' | 'vendor-category-status' | 'vendor-status' | 'product-status' | 'order-status' | 'payment-status' | 'invoice-status';
 
 interface StatusBadgeProps {
   status: string | boolean;
@@ -91,6 +91,43 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
           return <FiCheckCircle className="h-3 w-3" />;
         }
         return <FiXCircle className="h-3 w-3" />;
+
+      case 'order-status':
+        switch (upperStatus) {
+          case 'PLACED':
+            return <FiClock className="h-3 w-3" />;
+          case 'CONFIRMED':
+            return <FiCheckCircle className="h-3 w-3" />;
+          case 'PACKED':
+          case 'SHIPPED':
+            return <FiClock className="h-3 w-3" />;
+          case 'OUT_FOR_DELIVERY':
+            return <FiClock className="h-3 w-3" />;
+          case 'DELIVERED':
+            return <FiCheckCircle className="h-3 w-3" />;
+          case 'CANCELLED':
+          case 'REFUNDED':
+            return <FiXCircle className="h-3 w-3" />;
+          default:
+            return <FiHelpCircle className="h-3 w-3" />;
+        }
+
+      case 'payment-status':
+      case 'invoice-status':
+        switch (upperStatus) {
+          case 'PAID':
+            return <FiCheckCircle className="h-3 w-3" />;
+          case 'UNPAID':
+          case 'CANCELLED':
+            return <FiXCircle className="h-3 w-3" />;
+          case 'PENDING':
+            return <FiClock className="h-3 w-3" />;
+          case 'PARTIALLY_REFUNDED':
+          case 'REFUNDED':
+            return <FiAlertCircle className="h-3 w-3" />;
+          default:
+            return <FiHelpCircle className="h-3 w-3" />;
+        }
 
       default:
         return <FiHelpCircle className="h-3 w-3" />;
@@ -203,7 +240,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
       };
     }
 
-    if (badgeType === 'task-status' || badgeType === 'service-status' || badgeType === 'vendor-type-status' || badgeType === 'vendor-category-status' || badgeType === 'vendor-status' || badgeType === 'product-status') {
+    if (badgeType === 'task-status' || badgeType === 'service-status' || badgeType === 'vendor-type-status' || badgeType === 'vendor-category-status' || badgeType === 'vendor-status' || badgeType === 'product-status' || badgeType === 'invoice-status') {
       if (status === true || status === 'true' || upperStatus === 'ACTIVE' || upperStatus === 'YES') {
         return {
           bg: 'bg-green-100',
@@ -216,6 +253,43 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
         text: 'text-red-700',
         iconColor: '#DC2626',
       };
+    }
+
+    if (badgeType === 'order-status') {
+      switch (upperStatus) {
+        case 'PLACED':
+          return { bg: 'bg-blue-100', text: 'text-blue-700', iconColor: '#2563EB' };
+        case 'CONFIRMED':
+          return { bg: 'bg-indigo-100', text: 'text-indigo-700', iconColor: '#4F46E5' };
+        case 'PACKED':
+        case 'SHIPPED':
+        case 'OUT_FOR_DELIVERY':
+          return { bg: 'bg-yellow-100', text: 'text-yellow-700', iconColor: '#CA8A04' };
+        case 'DELIVERED':
+          return { bg: 'bg-green-100', text: 'text-green-700', iconColor: '#16A34A' };
+        case 'CANCELLED':
+        case 'REFUNDED':
+          return { bg: 'bg-red-100', text: 'text-red-700', iconColor: '#DC2626' };
+        default:
+          return { bg: 'bg-gray-100', text: 'text-gray-700', iconColor: '#4B5563' };
+      }
+    }
+
+    if (badgeType === 'payment-status' || badgeType === 'invoice-status') {
+      switch (upperStatus) {
+        case 'PAID':
+          return { bg: 'bg-green-100', text: 'text-green-700', iconColor: '#16A34A' };
+        case 'UNPAID':
+        case 'CANCELLED':
+          return { bg: 'bg-red-100', text: 'text-red-700', iconColor: '#DC2626' };
+        case 'PENDING':
+          return { bg: 'bg-yellow-100', text: 'text-yellow-700', iconColor: '#CA8A04' };
+        case 'PARTIALLY_REFUNDED':
+        case 'REFUNDED':
+          return { bg: 'bg-orange-100', text: 'text-orange-700', iconColor: '#EA580C' };
+        default:
+          return { bg: 'bg-gray-100', text: 'text-gray-700', iconColor: '#4B5563' };
+      }
     }
 
 
@@ -241,7 +315,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
       return 'Custom Role';
     }
 
-    if (badgeType === 'task-status' || badgeType === 'service-status' || badgeType === 'vendor-type-status' || badgeType === 'vendor-category-status' || badgeType === 'vendor-status' || badgeType === 'product-status') {
+    if (badgeType === 'task-status' || badgeType === 'service-status' || badgeType === 'vendor-type-status' || badgeType === 'vendor-category-status' || badgeType === 'vendor-status' || badgeType === 'product-status' || badgeType === 'invoice-status') {
       if (status === true || status === 'true' || String(status).toUpperCase() === 'ACTIVE' || String(status).toUpperCase() === 'YES') {
         return 'Active';
       }

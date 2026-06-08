@@ -163,7 +163,7 @@ const Checkout: React.FC = () => {
       });
       
       if (res?.invoiceId) {
-        navigate(`/payment/${res.invoiceId}/${form.paymentPreference.phone}/${res.orderId}`);
+        navigate(`/payment?invoiceId=${res.invoiceId}&phone=${form.paymentPreference.phone}&amount=${branchCart?.groupSubtotal}&orderId=${res.orderId}`);
       } else {
         navigate('/dashboard');
       }

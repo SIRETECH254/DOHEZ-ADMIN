@@ -249,7 +249,7 @@ const branchCart = useMemo(() => {
       });
       
       if (res?.invoiceId) {
-        navigate(`/payment/${res.invoiceId}/${form.paymentPreference.phone}/${res.orderId}`);
+        navigate(`/payment?invoiceId=${res.invoiceId}&phone=${form.paymentPreference.phone}&amount=${branchCart?.groupSubtotal}`);
       } else {
         navigate('/dashboard');
       }
@@ -619,7 +619,7 @@ addressesData.addresses.map((addr: any) => (
 ## Navigation Flow
 - **Route:** `/cart/checkout?vendorId=...&branchId=...`
 - **Back Button:** Returns to `/cart`.
-- **Success (Payment):** Redirects to `/payment/:invoiceId/:phone/:orderId`.
+- **Success (Payment):** Redirects to `/payment?invoiceId=...&phone=...&amount=...`.
 - **Success (Non-Payment):** Redirects to `/dashboard`.
 
 ## Future Enhancements
