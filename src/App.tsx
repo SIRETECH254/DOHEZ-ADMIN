@@ -63,6 +63,12 @@ import EditProduct from './app/authenticated/products/EditProduct';
 import ProductDetail from './app/authenticated/products/ProductDetail';
 import OrderList from './app/authenticated/orders/OrderList';
 import OrderDetail from './app/authenticated/orders/OrderDetail';
+import AppointmentList from './app/authenticated/appointments/AppointmentList';
+import AppointmentDetail from './app/authenticated/appointments/AppointmentDetail';
+import ConfirmAppointmentPayment from './app/authenticated/appointments/ConfirmAppointmentPayment';
+import PayAppointment from './app/authenticated/appointments/PayAppointment';
+import CreateAppointment from './app/authenticated/appointments/CreateAppointment';
+import RescheduleAppointment from './app/authenticated/appointments/RescheduleAppointment';
 import InvoiceList from './app/authenticated/invoices/InvoiceList';
 import InvoiceDetail from './app/authenticated/invoices/InvoiceDetail';
 import ReceiptList from './app/authenticated/receipts/ReceiptList';
@@ -184,6 +190,14 @@ export default function App() {
           {/* Order Management Routes */}
           <Route path="/orders" element={<OrderList />} />
           <Route path="/orders/:id" element={<OrderDetail />} />
+
+          {/* Appointment Management Routes */}
+          <Route path="/appointments" element={<AppointmentList />} />
+          <Route path="/appointments/new" element={<CreateAppointment />} />
+          <Route path="/appointments/:id" element={<AppointmentDetail />} />
+          <Route path="/appointments/:id/reschedule" element={<RescheduleAppointment />} />
+          <Route path="/appointments/:id/confirm" element={<ConfirmAppointmentPayment />} />
+          <Route path="/appointments/:id/pay" element={<PayAppointment />} />
 
           {/* Invoice Management Routes */}
           <Route path="/invoices" element={<InvoiceList />} />
