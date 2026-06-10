@@ -1,5 +1,5 @@
 import type { IconType } from 'react-icons'
-import { MdDashboard, MdPeople, MdSecurity, MdAssignment, MdMiscellaneousServices, MdStore, MdCategory, MdLocationOn, MdLayers, MdTune, MdCallSplit, MdInventory, MdListAlt, MdReceipt, MdReceiptLong } from 'react-icons/md'
+import { MdDashboard, MdPeople, MdSecurity, MdAssignment, MdMiscellaneousServices, MdStore, MdCategory, MdLocationOn, MdLayers, MdTune, MdCallSplit, MdInventory, MdListAlt, MdReceipt, MdReceiptLong, MdEvent, MdConfirmationNumber } from 'react-icons/md'
 
 export type NavItem = {
   label: string
@@ -24,6 +24,8 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Product Modifiers', path: '/product-modifiers', icon: MdTune, end: false },
   { label: 'Product Variants', path: '/product-variants', icon: MdCallSplit, end: false },
   { label: 'Products', path: '/products', icon: MdCategory, end: false },
+  { label: 'Events', path: '/events', icon: MdEvent, end: false },
+  { label: 'Tickets', path: '/tickets', icon: MdConfirmationNumber, end: false },
   { label: 'Inventory', path: '/inventory', icon: MdInventory, end: false },
   { label: 'Appointments', path: '/appointments', icon: MdListAlt, end: false },
   { label: 'Orders', path: '/orders', icon: MdListAlt, end: false },

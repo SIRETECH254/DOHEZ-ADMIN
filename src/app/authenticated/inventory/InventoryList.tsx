@@ -252,6 +252,7 @@ const InventoryList: React.FC = () => {
                           <thead>
                             <tr className="bg-gray-50/50">
                               <th className="px-4 py-3 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider">Attribute</th>
+                              <th className="px-4 py-3 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider">Price</th>
                               <th className="px-4 py-3 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider">Stock</th>
                               <th className="px-4 py-3 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider">Low Stock</th>
                               <th className="px-4 py-3 text-right text-[10px] font-bold text-gray-400 uppercase tracking-wider">Actions</th>
@@ -262,6 +263,9 @@ const InventoryList: React.FC = () => {
                               <tr key={sku._id} className="hover:bg-gray-50/50 transition-colors">
                                 <td className="px-4 py-3 text-sm text-gray-900 font-medium">
                                   {formatAttributes(sku, product)}
+                                </td>
+                                <td className="px-4 py-3 text-sm text-gray-600 font-medium">
+                                  ${sku.price?.toFixed(2)}
                                 </td>
                                 <td className="px-4 py-3 text-sm text-gray-600">
                                   {sku.stock}
@@ -285,7 +289,7 @@ const InventoryList: React.FC = () => {
                             ))}
                             {(!product.skus || product.skus.length === 0) && (
                               <tr>
-                                <td colSpan={4} className="px-4 py-6 text-center text-sm text-gray-400 italic">
+                                <td colSpan={5} className="px-4 py-6 text-center text-sm text-gray-400 italic">
                                   No SKUs found for this product.
                                 </td>
                               </tr>

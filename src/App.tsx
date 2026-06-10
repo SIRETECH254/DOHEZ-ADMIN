@@ -61,6 +61,11 @@ import ProductList from './app/authenticated/products/ProductList';
 import CreateProduct from './app/authenticated/products/CreateProduct';
 import EditProduct from './app/authenticated/products/EditProduct';
 import ProductDetail from './app/authenticated/products/ProductDetail';
+import EventList from './app/authenticated/events/EventList';
+import CreateEvent from './app/authenticated/events/CreateEvent';
+import EditEvent from './app/authenticated/events/EditEvent';
+import EventDetail from './app/authenticated/events/EventDetail';
+import PayTickets from './app/authenticated/events/PayTickets';
 import OrderList from './app/authenticated/orders/OrderList';
 import OrderDetail from './app/authenticated/orders/OrderDetail';
 import AppointmentList from './app/authenticated/appointments/AppointmentList';
@@ -73,6 +78,9 @@ import InvoiceList from './app/authenticated/invoices/InvoiceList';
 import InvoiceDetail from './app/authenticated/invoices/InvoiceDetail';
 import ReceiptList from './app/authenticated/receipts/ReceiptList';
 import ReceiptDetail from './app/authenticated/receipts/ReceiptDetail';
+import TicketList from './app/authenticated/tickets/TicketList';
+import TicketDetail from './app/authenticated/tickets/TicketDetail';
+import EditTicket from './app/authenticated/tickets/EditTicket';
 import Cart from './app/authenticated/cart/Cart';
 import Checkout from './app/authenticated/cart/Checkout';
 import Payment from './app/authenticated/payment/Payment';
@@ -187,6 +195,13 @@ export default function App() {
           <Route path="/products/:id" element={<ProductDetail />} />
           <Route path="/products/:id/edit" element={<EditProduct />} />
           
+          {/* Event Management Routes */}
+          <Route path="/events" element={<EventList />} />
+          <Route path="/events/new" element={<CreateEvent />} />
+          <Route path="/events/:id" element={<EventDetail />} />
+          <Route path="/events/pay-tickets" element={<PayTickets />} />
+          <Route path="/events/:id/edit" element={<EditEvent />} />
+          
           {/* Order Management Routes */}
           <Route path="/orders" element={<OrderList />} />
           <Route path="/orders/:id" element={<OrderDetail />} />
@@ -206,6 +221,11 @@ export default function App() {
           {/* Receipt Management Routes */}
           <Route path="/receipts" element={<ReceiptList />} />
           <Route path="/receipts/:id" element={<ReceiptDetail />} />
+
+          {/* Ticket Management Routes */}
+          <Route path="/tickets" element={<TicketList />} />
+          <Route path="/tickets/:id" element={<TicketDetail />} />
+          <Route path="/tickets/:id/edit" element={<EditTicket />} />
 
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />

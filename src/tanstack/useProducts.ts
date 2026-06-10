@@ -1,6 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { productAPI } from '../api';
-import type { CreateProductPayload, UpdateProductPayload, GetProductsParams } from '../types/api.types';
+import type { 
+  CreateProductPayload, 
+  CreateEventPayload,
+  CreateServiceProductPayload,
+  UpdateProductPayload, 
+  GetProductsParams 
+} from '../types/api.types';
 
 const DEFAULT_STALE_TIME = 1000 * 60 * 5;
 const DEFAULT_GC_TIME = 1000 * 60 * 10;
@@ -18,6 +24,38 @@ export const useCreateProduct = () => {
       console.log('Product created successfully');
     },
     onError: (error: any) => console.error('Error creating product:', error),
+  });
+};
+
+// Create event
+export const useCreateEvent = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: CreateEventPayload | FormData) => {
+      const response = await productAPI.createEvent(data);
+      return response.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      console.log('Event created successfully');
+    },
+    onError: (error: any) => console.error('Error creating event:', error),
+  });
+};
+
+// Create service product
+export const useCreateServiceProduct = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: CreateServiceProductPayload | FormData) => {
+      const response = await productAPI.createService(data);
+      return response.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      console.log('Service product created successfully');
+    },
+    onError: (error: any) => console.error('Error creating service product:', error),
   });
 };
 

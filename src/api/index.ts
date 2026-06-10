@@ -27,6 +27,7 @@ import type {
   UpdateBreakPayload,
   // Ticket types
   UpdateTicketPayload,
+  BookTicketPayload,
   // Receipt types
   PaginationParams,
   // Laundry types
@@ -67,6 +68,8 @@ import type {
   GetProductCategoriesParams,
   // Product types
   CreateProductPayload,
+  CreateEventPayload,
+  CreateServiceProductPayload,
   UpdateProductPayload,
   GetProductsParams,
   // Product Variant types
@@ -223,9 +226,12 @@ export const paymentAPI = {
   confirmAppointment: (appointmentId: string, data: { method: string, payerPhone: string }) =>
     api.post(`/api/payments/appointments/confirm/${appointmentId}`, data),
 
+  // Book tickets
+  bookTicket: (data: BookTicketPayload) => api.post('/api/payments/tickets/book', data),
+
   // Pay appointment invoice
   payAppointmentInvoice: (data: { appointmentId: string, method: string, payerPhone: string }) =>
-    api.post(`/api/payments/appointments/pay`, data),
+    api.post('/api/payments/appointments/pay', data),
 
   // Initiate payment for an invoice
   payInvoice: (data: { invoiceId: string, method: string, amount: number, payerPhone: string }) =>
@@ -568,6 +574,18 @@ export const productAPI = {
     productData instanceof FormData
       ? api.post('/api/products', productData, { headers: { 'Content-Type': 'multipart/form-data' } })
       : api.post('/api/products', productData),
+
+  // Create a new event
+  createEvent: (eventData: CreateEventPayload | FormData) =>
+    eventData instanceof FormData
+      ? api.post('/api/products/events', eventData, { headers: { 'Content-Type': 'multipart/form-data' } })
+      : api.post('/api/products/events', eventData),
+
+  // Create a new service product
+  createService: (serviceData: CreateServiceProductPayload | FormData) =>
+    serviceData instanceof FormData
+      ? api.post('/api/products/services', serviceData, { headers: { 'Content-Type': 'multipart/form-data' } })
+      : api.post('/api/products/services', serviceData),
 
   // Get all products
   getProducts: (params?: GetProductsParams) => api.get('/api/products', { params }),

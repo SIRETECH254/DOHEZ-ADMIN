@@ -17,7 +17,7 @@ import {
   FiHelpCircle,
 } from 'react-icons/fi';
 
-export type BadgeType = 'user-role' | 'user-status' | 'verified-status' | 'system-role' | 'task-status' | 'service-status' | 'vendor-type-status' | 'vendor-category-status' | 'vendor-status' | 'product-status' | 'order-status' | 'payment-status' | 'invoice-status' | 'appointment-status';
+export type BadgeType = 'user-role' | 'user-status' | 'verified-status' | 'system-role' | 'task-status' | 'service-status' | 'vendor-type-status' | 'vendor-category-status' | 'vendor-status' | 'product-status' | 'order-status' | 'payment-status' | 'invoice-status' | 'appointment-status' | 'ticket-status';
 
 interface StatusBadgeProps {
   status: string | boolean;
@@ -140,6 +140,21 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
           case 'PARTIAL':
           case 'PARTIALLY_REFUNDED':
           case 'REFUNDED':
+            return <FiAlertCircle className="h-3 w-3" />;
+          default:
+            return <FiHelpCircle className="h-3 w-3" />;
+        }
+
+      case 'ticket-status':
+        switch (upperStatus) {
+          case 'PENDING':
+            return <FiClock className="h-3 w-3" />;
+          case 'BOOKED':
+          case 'USED':
+            return <FiCheckCircle className="h-3 w-3" />;
+          case 'CANCELLED':
+            return <FiXCircle className="h-3 w-3" />;
+          case 'EXPIRED':
             return <FiAlertCircle className="h-3 w-3" />;
           default:
             return <FiHelpCircle className="h-3 w-3" />;
@@ -321,6 +336,23 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
         case 'PARTIALLY_REFUNDED':
         case 'REFUNDED':
           return { bg: 'bg-orange-100', text: 'text-orange-700', iconColor: '#EA580C' };
+        default:
+          return { bg: 'bg-gray-100', text: 'text-gray-700', iconColor: '#4B5563' };
+      }
+    }
+
+    if (badgeType === 'ticket-status') {
+      switch (upperStatus) {
+        case 'PENDING':
+          return { bg: 'bg-yellow-100', text: 'text-yellow-700', iconColor: '#CA8A04' };
+        case 'BOOKED':
+          return { bg: 'bg-blue-100', text: 'text-blue-700', iconColor: '#2563EB' };
+        case 'USED':
+          return { bg: 'bg-green-100', text: 'text-green-700', iconColor: '#16A34A' };
+        case 'CANCELLED':
+          return { bg: 'bg-red-100', text: 'text-red-700', iconColor: '#DC2626' };
+        case 'EXPIRED':
+          return { bg: 'bg-gray-100', text: 'text-gray-700', iconColor: '#4B5563' };
         default:
           return { bg: 'bg-gray-100', text: 'text-gray-700', iconColor: '#4B5563' };
       }

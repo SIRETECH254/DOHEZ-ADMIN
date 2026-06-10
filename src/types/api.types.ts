@@ -722,6 +722,17 @@ export interface UpdateTicketPayload {
   };
 }
 
+export interface BookTicketPayload {
+  eventId: string;
+  ticketsRequested: {
+    skuId: string;
+    quantity: number;
+    attendees: { name: string; email: string; phone: string }[];
+  }[];
+  paymentMethod: string;
+  phoneNumber: string;
+}
+
 // ============================================
 // Break Types
 // ============================================
@@ -1050,6 +1061,38 @@ export interface CreateProductPayload {
   selectedModifierOptions?: any[];
   status?: boolean;
   trackInventory?: boolean;
+  duration?: string;
+  buffertime?: string;
+}
+
+export interface CreateEventPayload {
+  name: string;
+  details?: string;
+  price: number;
+  category?: string;
+  vendor: string;
+  branch: string;
+  startDate: string;
+  endDate: string;
+  venue: string;
+  maxTicket?: number;
+  variants?: any[];
+  selectedVariantOptions?: any[];
+  location?: {
+    address?: string;
+    coordinates?: { lat?: number; lng?: number };
+  };
+  openAt?: string;
+}
+
+export interface CreateServiceProductPayload {
+  name: string;
+  details?: string;
+  price: number;
+  category?: string;
+  vendor: string;
+  branch: string;
+  service: string;
   duration?: string;
   buffertime?: string;
 }

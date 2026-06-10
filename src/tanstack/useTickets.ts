@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ticketAPI } from '../api';
-import type { UpdateTicketPayload } from '../types/api.types';
+import { ticketAPI, paymentAPI } from '../api';
+import type { UpdateTicketPayload, BookTicketPayload } from '../types/api.types';
 
 const DEFAULT_STALE_TIME = 1000 * 60 * 5;
 const DEFAULT_GC_TIME = 1000 * 60 * 10;
@@ -29,6 +29,22 @@ export const useGetTicket = (ticketId: string) => {
     enabled: !!ticketId,
     staleTime: DEFAULT_STALE_TIME,
     gcTime: DEFAULT_GC_TIME,
+  });
+};
+
+// Book tickets
+export const useBookTicket = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: BookTicketPayload) => {
+      const response = await paymentAPI.bookTicket(payload);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tickets'] });
+      console.log('Ticket booked successfully');
+    },
+    onError: (error: any) => console.error('Error booking ticket:', error),
   });
 };
 
