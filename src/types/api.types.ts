@@ -49,6 +49,9 @@ export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
   user: IUser;
+  roles: IRole[];
+  vendor?: IVendor;
+  branch?: IBranch;
 }
 
 export interface TokenResponse {

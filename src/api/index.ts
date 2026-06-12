@@ -122,7 +122,7 @@ export const authAPI = {
   resendOTP: (data: ResendOTPPayload) => api.post('/api/auth/resend-otp', data),
 
   // Login with credentials and receive tokens.
-  login: (credentials: LoginPayload) => api.post('/api/auth/login', credentials),
+  login: (credentials: LoginPayload) => api.post('/api/auth/login-admin', credentials),
 
   // Logout the current session.
   logout: () => api.post('/api/auth/logout'),

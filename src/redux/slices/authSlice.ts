@@ -1,12 +1,16 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { AuthState, User } from '../types';
+import type { AuthState, User, Role, Vendor, Branch } from '../types';
 
 const initialState: AuthState = {
   user: null,
+  roles: null,
+  vendor: null,
+  branch: null,
   accessToken: null,
   refreshToken: null,
   isAuthenticated: false,
   isLoading: false,
+  isError: false,
   error: null,
 };
 
@@ -17,12 +21,16 @@ const authSlice = createSlice({
     // Login actions: drive sign-in lifecycle and token storage.
     loginStart: (state) => {
       state.isLoading = true;
+      state.isError = false;
       state.error = null;
     },
     loginSuccess: (
       state,
       action: PayloadAction<{
         user: User;
+        roles: Role[];
+        vendor?: Vendor;
+        branch?: Branch;
         accessToken: string;
         refreshToken: string;
       }>,
@@ -30,16 +38,24 @@ const authSlice = createSlice({
       state.isLoading = false;
       state.isAuthenticated = true;
       state.user = action.payload.user;
+      state.roles = action.payload.roles;
+      state.vendor = action.payload.vendor || null;
+      state.branch = action.payload.branch || null;
       state.accessToken = action.payload.accessToken;
       state.refreshToken = action.payload.refreshToken;
+      state.isError = false;
       state.error = null;
     },
     loginFailure: (state, action: PayloadAction<string>) => {
       state.isLoading = false;
       state.isAuthenticated = false;
       state.user = null;
+      state.roles = null;
+      state.vendor = null;
+      state.branch = null;
       state.accessToken = null;
       state.refreshToken = null;
+      state.isError = true;
       state.error = action.payload;
     },
 
@@ -60,9 +76,14 @@ const authSlice = createSlice({
     // Logout action: wipe all auth state.
     logout: (state) => {
       state.user = null;
+      state.roles = null;
+      state.vendor = null;
+      state.branch = null;
       state.accessToken = null;
       state.refreshToken = null;
       state.isAuthenticated = false;
+      state.isLoading = false;
+      state.isError = false;
       state.error = null;
     },
 
@@ -87,6 +108,7 @@ const authSlice = createSlice({
 
     // Clear error action: used by UI to reset inline error states.
     clearError: (state) => {
+      state.isError = false;
       state.error = null;
     },
 
@@ -98,24 +120,42 @@ const authSlice = createSlice({
     // Convenience actions: common auth lifecycle helpers.
     setAuthLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
+      state.isError = false;
       state.error = null;
     },
-    setAuthSuccess: (state, action: PayloadAction<User>) => {
-      state.user = action.payload;
+    setAuthSuccess: (
+      state,
+      action: PayloadAction<{
+        user: User;
+        roles: Role[];
+        vendor?: Vendor;
+        branch?: Branch;
+      }>,
+    ) => {
+      state.user = action.payload.user;
+      state.roles = action.payload.roles;
+      state.vendor = action.payload.vendor || null;
+      state.branch = action.payload.branch || null;
       state.isAuthenticated = true;
       state.isLoading = false;
+      state.isError = false;
       state.error = null;
     },
     setAuthFailure: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload;
+      state.isError = !!action.payload;
       state.isLoading = false;
     },
     clearAuth: (state) => {
       state.user = null;
+      state.roles = null;
+      state.vendor = null;
+      state.branch = null;
       state.accessToken = null;
       state.refreshToken = null;
       state.isAuthenticated = false;
       state.isLoading = false;
+      state.isError = false;
       state.error = null;
     },
   },

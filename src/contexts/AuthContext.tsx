@@ -27,7 +27,7 @@ import type {
   UpdateProfilePayload,
   ChangePasswordPayload,
 } from '../types/api.types';
-import type { User } from '../redux/types';
+import type { User, Role, Vendor, Branch } from '../redux/types';
 
 interface AuthResult {
   success: boolean;
@@ -39,6 +39,9 @@ interface AuthResult {
 interface AuthContextValue {
   // State (from Redux)
   user: User | null;
+  roles: Role[] | null;
+  vendor: Vendor | null;
+  branch: Branch | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
@@ -63,6 +66,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
 
   const user = useAppSelector((state) => state.auth.user);
+  const roles = useAppSelector((state) => state.auth.roles);
+  const vendor = useAppSelector((state) => state.auth.vendor);
+  const branch = useAppSelector((state) => state.auth.branch);
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
   const isLoading = useAppSelector((state) => state.auth.isLoading);
   const error = useAppSelector((state) => state.auth.error);
@@ -73,13 +79,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       try {
         const token = localStorage.getItem('accessToken');
         const storedUserString = localStorage.getItem('user');
+        const storedRolesString = localStorage.getItem('roles');
+        const storedVendorString = localStorage.getItem('vendor');
+        const storedBranchString = localStorage.getItem('branch');
 
         // 1) Rehydrate immediately from localStorage so state survives reloads.
         if (token && storedUserString) {
           try {
             const storedUser = JSON.parse(storedUserString);
+            const storedRoles = storedRolesString ? JSON.parse(storedRolesString) : null;
+            const storedVendor = storedVendorString ? JSON.parse(storedVendorString) : null;
+            const storedBranch = storedBranchString ? JSON.parse(storedBranchString) : null;
+
             if (storedUser) {
-              dispatch(setAuthSuccess(storedUser));
+              dispatch(
+                setAuthSuccess({
+                  user: storedUser,
+                  roles: storedRoles,
+                  vendor: storedVendor,
+                  branch: storedBranch,
+                }),
+              );
               dispatch(setTokens({ accessToken: token }));
             } else {
               dispatch(clearAuth());
@@ -101,7 +121,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             const userData = response.data.data?.user ?? response.data.data;
             if (userData) {
               localStorage.setItem('user', JSON.stringify(userData));
-              dispatch(setAuthSuccess(userData));
+              // Note: background refresh currently only updates user, 
+              // but could be expanded to update roles/vendor/branch if API supports it.
+              dispatch(updateUser(userData));
             }
           } catch (refreshError: any) {
             console.log('Background token validation failed:', refreshError?.response?.status);
@@ -125,15 +147,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       const response = await authAPI.login(credentials);
-      const { user: userData, accessToken, refreshToken } = response.data.data;
+      const {
+        user: userData,
+        roles: rolesData,
+        vendor: vendorData,
+        branch: branchData,
+        accessToken,
+        refreshToken,
+      } = response.data.data;
 
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
       localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem('roles', JSON.stringify(rolesData));
+      if (vendorData) localStorage.setItem('vendor', JSON.stringify(vendorData));
+      if (branchData) localStorage.setItem('branch', JSON.stringify(branchData));
 
       dispatch(
         loginSuccess({
           user: userData,
+          roles: rolesData,
+          vendor: vendorData,
+          branch: branchData,
           accessToken,
           refreshToken,
         }),
@@ -172,15 +207,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       const response = await authAPI.verifyOTP(otpData);
-      const { user: userData, accessToken, refreshToken } = response.data.data;
+      const {
+        user: userData,
+        roles: rolesData,
+        vendor: vendorData,
+        branch: branchData,
+        accessToken,
+        refreshToken,
+      } = response.data.data;
 
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
       localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem('roles', JSON.stringify(rolesData));
+      if (vendorData) localStorage.setItem('vendor', JSON.stringify(vendorData));
+      if (branchData) localStorage.setItem('branch', JSON.stringify(branchData));
 
       dispatch(
         loginSuccess({
           user: userData,
+          roles: rolesData,
+          vendor: vendorData,
+          branch: branchData,
           accessToken,
           refreshToken,
         }),
@@ -243,7 +291,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (updatedUser) {
         localStorage.setItem('user', JSON.stringify(updatedUser));
         dispatch(updateUser(updatedUser));
-        dispatch(setAuthSuccess(updatedUser));
+        dispatch(setAuthSuccess({
+          user: updatedUser,
+          roles: roles,
+          vendor: vendor,
+          branch: branch
+        }));
       }
 
       return { success: true, user: updatedUser };
@@ -276,6 +329,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('user');
+      localStorage.removeItem('roles');
+      localStorage.removeItem('vendor');
+      localStorage.removeItem('branch');
 
       dispatch(logoutAction());
       dispatch(clearAuth());
@@ -293,6 +349,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Expose auth state and actions via context.
   const value: AuthContextValue = {
     user,
+    roles,
+    vendor,
+    branch,
     isAuthenticated,
     isLoading,
     error,
