@@ -462,6 +462,7 @@ export interface UpdateBranchPayload {
 
 export interface GetBranchesParams extends PaginationParams {
   vendorId?: string;
+  search?: string;
 }
 
 // ============================================
@@ -550,10 +551,10 @@ export interface ILaundry {
     hour: string;
   };
   dropDate?: string;
-  services: string[];
-  customer: string;
-  vendor: string;
-  branch: string;
+  services: IProduct[];
+  customer: IUser;
+  vendor: IVendor;
+  branch: IBranch;
   location: {
     address: string;
     coordinates: {
@@ -974,12 +975,12 @@ export interface GetProductVariantsParams extends PaginationParams {
 
 export interface ISelectedModifierOption {
   modifierId: string;
-  optionId: string;
+  optionIds: string[];
 }
 
 export interface ISelectedVariantOption {
   variantId: string;
-  optionId: string;
+  optionIds: string[];
 }
 
 export interface IVariant {

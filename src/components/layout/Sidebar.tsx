@@ -19,7 +19,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
       <button
         type="button"
         onClick={onClose}
-        className="absolute right-4 top-4 rounded-lg p-2 text-gray-600 hover:bg-gray-100 lg:hidden"
+        className="text-gray-600 hover:bg-gray-100 lg:hidden self-end"
         aria-label="Close sidebar"
       >
         <MdClose size={24} />
@@ -52,7 +52,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
       </nav>
 
       {/* Footer section: Store, Profile, and Logout */}
-      <div className="mt-auto bg-brand-tint px-4 py-4 -mx-4 -mb-6 ">
+      <div className="mt-auto bg-brand-primary/10 shadow-2xs px-4 py-4 -mx-4 -mb-6 ">
         {/* Store and Profile links */}
         <div className="space-y-1 mb-3">
           {NAV_ITEMS.filter((item) => item.path === '/profile' || item.path === '/store').map((item) => {

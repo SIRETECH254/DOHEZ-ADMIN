@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MdArrowBack, MdCameraAlt } from 'react-icons/md';
+import { MdArrowBack, MdCameraAlt,MdStore ,MdMiscellaneousServices} from 'react-icons/md';
 import { 
   HiCheck, 
   HiOutlineClipboardCheck, 
@@ -18,28 +18,36 @@ import { useCreateProduct } from '../../../tanstack/useProducts';
 import { useGetProductCategories } from '../../../tanstack/useProductCategories';
 import { useGetProductVariants } from '../../../tanstack/useProductVariants';
 import { useGetProductModifiers } from '../../../tanstack/useProductModifiers';
+import { useGetVendors } from '../../../tanstack/useVendors';
+import { useGetBranches } from '../../../tanstack/useBranches';
+import { useGetServices } from '../../../tanstack/useServices';
 import StatusBadge from '../../../components/ui/StatusBadge';
-import type { IProductCategory, IVariant, IProductModifier } from '../../../types/api.types';
+import type { IProductCategory, IVariant, IProductModifier, IVendor, IBranch, IService } from '../../../types/api.types';
 
 const TABS = [
-  { key: 'basic', label: 'Basic Info', step: 1 },
-  { key: 'category', label: 'Category', step: 2 },
-  { key: 'price', label: 'Prices & Status', step: 3 },
-  { key: 'variants', label: 'Variants', step: 4 },
-  { key: 'modifiers', label: 'Modifiers', step: 5 },
-  { key: 'images', label: 'Images', step: 6 },
-  { key: 'summary', label: 'Summary', step: 7 },
+  { key: 'vendor', label: 'Vendor & Branch', step: 1 },
+  { key: 'service', label: 'Service', step: 2 },
+  { key: 'basic', label: 'Basic Info', step: 3 },
+  { key: 'category', label: 'Category', step: 4 },
+  { key: 'price', label: 'Prices & Status', step: 5 },
+  { key: 'variants', label: 'Variants', step: 6 },
+  { key: 'modifiers', label: 'Modifiers', step: 7 },
+  { key: 'images', label: 'Images', step: 8 },
+  { key: 'summary', label: 'Summary', step: 9 },
 ];
 
 const CreateProduct: React.FC = () => {
   const navigate = useNavigate();
   const createProduct = useCreateProduct();
   
-  const [activeTab, setActiveTab] = useState('basic');
+  const [activeTab, setActiveTab] = useState('vendor');
   const [currentStep, setCurrentStep] = useState(1);
   const [inlineError, setInlineError] = useState<string | null>(null);
 
   const [form, setForm] = useState({
+    vendor: '',
+    branch: '',
+    service: '',
     name: '',
     details: '',
     category: '',
@@ -54,6 +62,25 @@ const CreateProduct: React.FC = () => {
   });
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
 
+  // Vendor search state
+  const [vendorSearchQuery, setVendorSearchQuery] = useState('');
+  const [debouncedVendorSearchQuery, setDebouncedVendorSearchQuery] = useState('');
+  const { data: vendorsData, isLoading: isSearchingVendors } = useGetVendors({
+    search: debouncedVendorSearchQuery,
+  });
+
+  // Branch fetch state (dependent on vendor)
+  const { data: branchesData, isLoading: isLoadingBranches } = useGetBranches({
+    vendorId: form.vendor,
+  });
+
+  // Service search state
+  const [serviceSearchQuery, setServiceSearchQuery] = useState('');
+  const [debouncedServiceSearchQuery, setDebouncedServiceSearchQuery] = useState('');
+  const { data: servicesData, isLoading: isSearchingServices } = useGetServices({
+    search: debouncedServiceSearchQuery,
+  });
+
   // Category search state
   const [categorySearchQuery, setCategorySearchQuery] = useState('');
   const [debouncedCategorySearchQuery, setDebouncedCategorySearchQuery] = useState('');
@@ -66,14 +93,36 @@ const CreateProduct: React.FC = () => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
+      setDebouncedVendorSearchQuery(vendorSearchQuery);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [vendorSearchQuery]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedServiceSearchQuery(serviceSearchQuery);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [serviceSearchQuery]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
       setDebouncedCategorySearchQuery(categorySearchQuery);
     }, 500);
     return () => clearTimeout(timer);
   }, [categorySearchQuery]);
 
+  const vendors = (vendorsData as any)?.vendors || [];
+  const branches = (branchesData as any)?.branches || [];
+  const services = (servicesData as any)?.services || [];
   const categories = (categoriesData as any)?.categories || [];
   const variants = (variantsData as any)?.variants || [];
   const modifiers = (modifiersData as any)?.modifiers || [];
+
+  // Reset branch when vendor changes
+  useEffect(() => {
+    setForm(prev => ({ ...prev, branch: '' }));
+  }, [form.vendor]);
 
   const toggleVariantOption = (variantId: string, optionId: string) => {
     setForm(prev => {
@@ -158,8 +207,10 @@ const CreateProduct: React.FC = () => {
     if (!targetTab) return false;
     if (targetTab.step < currentStep) return true;
     
-    if (currentStep === 1) return !!form.name;
-    if (currentStep === 2) return !!form.category;
+    if (currentStep === 1) return !!form.vendor && !!form.branch;
+    if (currentStep === 2) return !!form.service;
+    if (currentStep === 3) return !!form.name;
+    if (currentStep === 4) return !!form.category;
     
     return true;
   };
@@ -199,7 +250,26 @@ const CreateProduct: React.FC = () => {
     if (activeTab !== 'summary') return;
     setInlineError(null);
 
+    // Group selectedVariantOptions by variantId
+    const groupedVariantOptions = form.variants.map(vId => ({
+      variantId: vId,
+      optionIds: form.selectedVariantOptions
+        .filter(so => so.variantId === vId)
+        .map(so => so.optionId)
+    })).filter(group => group.optionIds.length > 0);
+
+    // Group selectedModifierOptions by modifierId
+    const groupedModifierOptions = form.modifiers.map(mId => ({
+      modifierId: mId,
+      optionIds: form.selectedModifierOptions
+        .filter(so => so.modifierId === mId)
+        .map(so => so.optionId)
+    })).filter(group => group.optionIds.length > 0);
+
     const formData = new FormData();
+    formData.append('vendor', form.vendor);
+    formData.append('branch', form.branch);
+    formData.append('service', form.service);
     formData.append('name', form.name);
     formData.append('details', form.details);
     formData.append('category', form.category);
@@ -208,8 +278,8 @@ const CreateProduct: React.FC = () => {
     formData.append('status', String(form.status));
     formData.append('variants', JSON.stringify(form.variants));
     formData.append('modifiers', JSON.stringify(form.modifiers));
-    formData.append('selectedVariantOptions', JSON.stringify(form.selectedVariantOptions));
-    formData.append('selectedModifierOptions', JSON.stringify(form.selectedModifierOptions));
+    formData.append('selectedVariantOptions', JSON.stringify(groupedVariantOptions));
+    formData.append('selectedModifierOptions', JSON.stringify(groupedModifierOptions));
     form.images.forEach(image => formData.append('images', image));
 
     try {
@@ -222,9 +292,11 @@ const CreateProduct: React.FC = () => {
 
   const renderStepHeader = () => {
     const progress = (currentStep / TABS.length) * 100;
+    
     return (
       <div className="bg-white border-b border-gray-100 space-y-4 p-4 rounded-t-3xl">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-y-3">
+        <div className="flex flex-col sm:flex-row  items-start sm:items-center sm:justify-between gap-y-3">
+          {/* current step & label */}
           <div className="flex flex-row items-center gap-x-2">
             <div className="h-6 w-6 rounded-full items-center justify-center bg-brand-primary text-white text-xs font-bold flex">
               {currentStep}
@@ -233,31 +305,173 @@ const CreateProduct: React.FC = () => {
               {TABS.find(tab => tab.key === activeTab)?.label}
             </span>
           </div>
-          <div className="flex flex-row items-center gap-x-3 md:gap-x-5 overflow-x-auto pb-2 sm:pb-0">
+       
+          {/* Step numbers and labels */}
+          <div className="flex flex-row items-center gap-x-3 md:gap-x-5">
             {TABS.map((tab) => {
               const isActive = tab.key === activeTab;
               const isCompleted = currentStep > tab.step;
+              
               return (
-                <button key={tab.key} onClick={() => handleTabChange(tab.key)} className="items-center flex flex-col" disabled={!validateTabNavigation(tab.key)} type="button">
-                  <div className={`h-7 w-7 rounded-full items-center justify-center flex transition-all ${isActive ? 'bg-brand-primary ring-4 ring-brand-primary/20 shadow-lg' : isCompleted ? 'bg-brand-primary/40' : 'bg-gray-100'}`}>
-                    {isCompleted ? <HiCheck className="w-5 h-5 text-white" /> : <span className={`text-sm font-bold ${isActive ? 'text-white' : 'text-gray-400'}`}>{tab.step}</span>}
+                <button
+                  key={tab.key}
+                  onClick={() => handleTabChange(tab.key)}
+                  className="items-center flex flex-col"
+                  disabled={!validateTabNavigation(tab.key)}
+                  type="button"
+                >
+                  <div className="items-center flex flex-col">
+                    {/* Step number circle */}
+                    <div className={`h-7 w-7 rounded-full items-center justify-center flex transition-all ${
+                      isActive 
+                        ? 'bg-brand-primary ring-4 ring-brand-primary/20 shadow-lg' 
+                        : isCompleted 
+                          ? 'bg-brand-primary/40' 
+                          : 'bg-gray-100'
+                    }`}>
+                      {isCompleted ? (
+                        <HiCheck className="w-5 h-5 text-white" />
+                      ) : (
+                        <span className={`text-sm font-bold ${
+                          isActive ? 'text-white' : 'text-gray-400'
+                        }`}>
+                          {tab.step}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </button>
               );
             })}
           </div>
         </div>
+        
+        {/* Progress bar */}
         <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-          <div className="h-full bg-brand-primary rounded-full transition-all duration-500 ease-out" style={{ width: `${progress}%` }} />
+          <div 
+            className="h-full bg-brand-primary rounded-full transition-all duration-500 ease-out"
+            style={{ width: `${progress}%` }}
+          />
         </div>
       </div>
     );
   };
 
   const renderContent = () => {
+    const selectedVendor = vendors.find((v: IVendor) => v._id === form.vendor);
+    const selectedBranch = branches.find((b: IBranch) => b._id === form.branch);
+    const selectedService = services.find((s: IService) => s._id === form.service);
     const selectedCategory = categories.find((c: IProductCategory) => c._id === form.category);
 
     switch (activeTab) {
+      case 'vendor':
+        return (
+          <div className="space-y-6 animate-fadeIn">
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <label className="label">Search Vendor <span className="text-red-500">*</span></label>
+                <div className="relative">
+                  <input type="text" value={vendorSearchQuery} onChange={e => setVendorSearchQuery(e.target.value)} className="input pr-10" placeholder="Type to search vendor..." />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    {isSearchingVendors ? <div className="animate-spin h-4 w-4 border-2 border-brand-primary border-t-transparent rounded-full" /> : <HiOutlineSearch className="text-gray-400" />}
+                  </div>
+                </div>
+              </div>
+
+              {selectedVendor && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-brand-primary">
+                    <HiCheck className="w-4 h-4" />
+                    <span className="text-xs font-bold uppercase tracking-wider">Selected Vendor</span>
+                  </div>
+                  <div className="p-4 rounded-2xl border border-brand-primary bg-brand-primary/5 flex items-center gap-4 animate-fadeIn">
+                    <div className="h-10 w-10 rounded-xl bg-brand-primary text-white flex items-center justify-center font-bold">{selectedVendor.name[0]}</div>
+                    <span className="font-bold text-gray-900">{selectedVendor.name}</span>
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {isSearchingVendors && vendors.length === 0 ? (
+                  [...Array(4)].map((_, i) => (
+                    <div key={i} className="h-16 rounded-2xl bg-gray-100 animate-pulse" />
+                  ))
+                ) : (
+                  vendors.map((v: IVendor) => (
+                    <button key={v._id} type="button" onClick={() => setForm({...form, vendor: v._id})} className={`p-4 rounded-2xl border transition-all flex items-center gap-4 text-left ${form.vendor === v._id ? 'border-brand-primary bg-brand-primary/5 shadow-sm' : 'border-gray-100 hover:border-brand-primary/30'}`}>
+                      <div className={`h-10 w-10 rounded-xl flex items-center justify-center font-bold ${form.vendor === v._id ? 'bg-brand-primary text-white' : 'bg-gray-100 text-brand-primary'}`}>{v.name[0]}</div>
+                      <span className="font-semibold text-gray-900 truncate">{v.name}</span>
+                    </button>
+                  ))
+                )}
+              </div>
+
+              {form.vendor && (
+                <div className="pt-6 border-t border-gray-100 space-y-4 animate-fadeIn">
+                  <label className="label">Select Branch <span className="text-red-500">*</span></label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {isLoadingBranches ? (
+                      [...Array(2)].map((_, i) => (
+                        <div key={i} className="h-16 rounded-2xl bg-gray-100 animate-pulse" />
+                      ))
+                    ) : (
+                      branches.map((b: IBranch) => (
+                        <button key={b._id} type="button" onClick={() => setForm({...form, branch: b._id})} className={`p-4 rounded-2xl border transition-all flex items-center gap-4 text-left ${form.branch === b._id ? 'border-brand-primary bg-brand-primary/5 shadow-sm' : 'border-gray-100 hover:border-brand-primary/30'}`}>
+                          <div className={`h-10 w-10 rounded-xl flex items-center justify-center font-bold ${form.branch === b._id ? 'bg-brand-primary text-white' : 'bg-gray-100 text-brand-primary'}`}>{b.name[0]}</div>
+                          <span className="font-semibold text-gray-900 truncate">{b.name}</span>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      case 'service':
+        return (
+          <div className="space-y-6 animate-fadeIn">
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <label className="label">Search Service <span className="text-red-500">*</span></label>
+                <div className="relative">
+                  <input type="text" value={serviceSearchQuery} onChange={e => setServiceSearchQuery(e.target.value)} className="input pr-10" placeholder="Type to search service..." />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    {isSearchingServices ? <div className="animate-spin h-4 w-4 border-2 border-brand-primary border-t-transparent rounded-full" /> : <HiOutlineSearch className="text-gray-400" />}
+                  </div>
+                </div>
+              </div>
+
+              {selectedService && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-brand-primary">
+                    <HiCheck className="w-4 h-4" />
+                    <span className="text-xs font-bold uppercase tracking-wider">Selected Service</span>
+                  </div>
+                  <div className="p-4 rounded-2xl border border-brand-primary bg-brand-primary/5 flex items-center gap-4 animate-fadeIn">
+                    <div className="h-10 w-10 rounded-xl bg-brand-primary text-white flex items-center justify-center font-bold">{selectedService.name[0]}</div>
+                    <span className="font-bold text-gray-900">{selectedService.name}</span>
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {isSearchingServices && services.length === 0 ? (
+                  [...Array(4)].map((_, i) => (
+                    <div key={i} className="h-16 rounded-2xl bg-gray-100 animate-pulse" />
+                  ))
+                ) : (
+                  services.map((s: IService) => (
+                    <button key={s._id} type="button" onClick={() => setForm({...form, service: s._id})} className={`p-4 rounded-2xl border transition-all flex items-center gap-4 text-left ${form.service === s._id ? 'border-brand-primary bg-brand-primary/5 shadow-sm' : 'border-gray-100 hover:border-brand-primary/30'}`}>
+                      <div className={`h-10 w-10 rounded-xl flex items-center justify-center font-bold ${form.service === s._id ? 'bg-brand-primary text-white' : 'bg-gray-100 text-brand-primary'}`}>{s.name[0]}</div>
+                      <span className="font-semibold text-gray-900 truncate">{s.name}</span>
+                    </button>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        );
       case 'basic':
         return (
           <div className="space-y-6 animate-fadeIn">
@@ -450,6 +664,42 @@ const CreateProduct: React.FC = () => {
       case 'summary':
         return (
           <div className="space-y-6 animate-fadeIn">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-gray-50 rounded-3xl p-6 border border-gray-100 space-y-4">
+                    <div className="flex items-center justify-between border-b border-gray-200 pb-4">
+                        <div className="flex items-center gap-2 text-brand-primary">
+                            <MdStore size={20} />
+                            <h3 className="text-sm font-bold uppercase tracking-wider">Vendor & Branch</h3>
+                        </div>
+                        <button type="button" onClick={() => handleTabChange('vendor')} className="text-brand-primary transition-colors hover:scale-110"><HiOutlinePencilAlt size={18} /></button>
+                    </div>
+                    <div className="grid grid-cols-1 gap-4">
+                        <div>
+                            <span className="text-[10px] font-bold text-gray-400 uppercase">Vendor</span>
+                            <p className="text-sm font-semibold">{selectedVendor?.name || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <span className="text-[10px] font-bold text-gray-400 uppercase">Branch</span>
+                            <p className="text-sm font-semibold">{selectedBranch?.name || 'N/A'}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-gray-50 rounded-3xl p-6 border border-gray-100 space-y-4">
+                    <div className="flex items-center justify-between border-b border-gray-200 pb-4">
+                        <div className="flex items-center gap-2 text-brand-primary">
+                            <MdMiscellaneousServices size={20} />
+                            <h3 className="text-sm font-bold uppercase tracking-wider">Service</h3>
+                        </div>
+                        <button type="button" onClick={() => handleTabChange('service')} className="text-brand-primary transition-colors hover:scale-110"><HiOutlinePencilAlt size={18} /></button>
+                    </div>
+                    <div>
+                        <span className="text-[10px] font-bold text-gray-400 uppercase">Service Name</span>
+                        <p className="text-sm font-semibold">{selectedService?.name || 'N/A'}</p>
+                    </div>
+                </div>
+            </div>
+
             <div className="bg-gray-50 rounded-3xl p-6 border border-gray-100 space-y-6">
                 <div className="flex items-center justify-between border-b border-gray-200 pb-4">
                     <div className="flex items-center gap-2 text-brand-primary">

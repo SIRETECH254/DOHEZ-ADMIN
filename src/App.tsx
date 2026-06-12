@@ -61,6 +61,10 @@ import ProductList from './app/authenticated/products/ProductList';
 import CreateProduct from './app/authenticated/products/CreateProduct';
 import EditProduct from './app/authenticated/products/EditProduct';
 import ProductDetail from './app/authenticated/products/ProductDetail';
+import PackagingList from './app/authenticated/packaging/PackagingList';
+import CreatePackaging from './app/authenticated/packaging/CreatePackaging';
+import EditPackaging from './app/authenticated/packaging/EditPackaging';
+import PackagingDetail from './app/authenticated/packaging/PackagingDetail';
 import EventList from './app/authenticated/events/EventList';
 import CreateEvent from './app/authenticated/events/CreateEvent';
 import EditEvent from './app/authenticated/events/EditEvent';
@@ -81,10 +85,19 @@ import ReceiptDetail from './app/authenticated/receipts/ReceiptDetail';
 import TicketList from './app/authenticated/tickets/TicketList';
 import TicketDetail from './app/authenticated/tickets/TicketDetail';
 import EditTicket from './app/authenticated/tickets/EditTicket';
+import CouponList from './app/authenticated/coupons/CouponList';
+import CreateCoupon from './app/authenticated/coupons/CreateCoupon';
+import EditCoupon from './app/authenticated/coupons/EditCoupon';
+import CouponDetail from './app/authenticated/coupons/CouponDetail';
 import Cart from './app/authenticated/cart/Cart';
 import Checkout from './app/authenticated/cart/Checkout';
 import Payment from './app/authenticated/payment/Payment';
 import InventoryList from './app/authenticated/inventory/InventoryList';
+import LaundryList from './app/authenticated/laundries/LaundryList';
+import BookLaundry from './app/authenticated/laundries/BookLaundry';
+import EditLaundry from './app/authenticated/laundries/EditLaundry';
+import LaundryDetail from './app/authenticated/laundries/LaundryDetail';
+import PayLaundry from './app/authenticated/payment/PayLaundry';
 import Layout from './components/layout/layout'
 
 export default function App() {
@@ -195,6 +208,12 @@ export default function App() {
           <Route path="/products/:id" element={<ProductDetail />} />
           <Route path="/products/:id/edit" element={<EditProduct />} />
           
+          {/* Packaging Management Routes */}
+          <Route path="/packaging" element={<PackagingList />} />
+          <Route path="/packaging/new" element={<CreatePackaging />} />
+          <Route path="/packaging/:id" element={<PackagingDetail />} />
+          <Route path="/packaging/:id/edit" element={<EditPackaging />} />
+          
           {/* Event Management Routes */}
           <Route path="/events" element={<EventList />} />
           <Route path="/events/new" element={<CreateEvent />} />
@@ -227,9 +246,22 @@ export default function App() {
           <Route path="/tickets/:id" element={<TicketDetail />} />
           <Route path="/tickets/:id/edit" element={<EditTicket />} />
 
+          {/* Coupon Management Routes */}
+          <Route path="/coupons" element={<CouponList />} />
+          <Route path="/coupons/new" element={<CreateCoupon />} />
+          <Route path="/coupons/:id" element={<CouponDetail />} />
+          <Route path="/coupons/:id/edit" element={<EditCoupon />} />
+
+          {/* Laundry Management Routes */}
+          <Route path="/laundries" element={<LaundryList />} />
+          <Route path="/laundries/new" element={<BookLaundry />} />
+          <Route path="/laundries/:id" element={<LaundryDetail />} />
+          <Route path="/laundries/:id/edit" element={<EditLaundry />} />
+
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/payment" element={<Payment />} />
+          <Route path="/payment/laundry" element={<PayLaundry />} />
 
           {/* Inventory Management Routes */}
           <Route path="/inventory" element={<InventoryList />} />

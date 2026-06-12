@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { MdArrowBack, MdCameraAlt } from 'react-icons/md';
+import { MdArrowBack, MdCameraAlt, MdStore, MdMiscellaneousServices } from 'react-icons/md';
 import { 
   HiCheck, 
   HiOutlineClipboardCheck, 
@@ -18,17 +18,22 @@ import { useGetProductById, useUpdateProduct } from '../../../tanstack/useProduc
 import { useGetProductCategories } from '../../../tanstack/useProductCategories';
 import { useGetProductVariants } from '../../../tanstack/useProductVariants';
 import { useGetProductModifiers } from '../../../tanstack/useProductModifiers';
+import { useGetVendors } from '../../../tanstack/useVendors';
+import { useGetBranches } from '../../../tanstack/useBranches';
+import { useGetServices } from '../../../tanstack/useServices';
 import StatusBadge from '../../../components/ui/StatusBadge';
-import type { IProductCategory, IVariant, IProductModifier, IProduct } from '../../../types/api.types';
+import type { IProductCategory, IVariant, IProductModifier, IVendor, IBranch, IService, IProduct } from '../../../types/api.types';
 
 const TABS = [
-  { key: 'basic', label: 'Basic Info', step: 1 },
-  { key: 'category', label: 'Category', step: 2 },
-  { key: 'price', label: 'Prices & Status', step: 3 },
-  { key: 'variants', label: 'Variants', step: 4 },
-  { key: 'modifiers', label: 'Modifiers', step: 5 },
-  { key: 'images', label: 'Images', step: 6 },
-  { key: 'summary', label: 'Summary', step: 7 },
+  { key: 'vendor', label: 'Vendor & Branch', step: 1 },
+  { key: 'service', label: 'Service', step: 2 },
+  { key: 'basic', label: 'Basic Info', step: 3 },
+  { key: 'category', label: 'Category', step: 4 },
+  { key: 'price', label: 'Prices & Status', step: 5 },
+  { key: 'variants', label: 'Variants', step: 6 },
+  { key: 'modifiers', label: 'Modifiers', step: 7 },
+  { key: 'images', label: 'Images', step: 8 },
+  { key: 'summary', label: 'Summary', step: 9 },
 ];
 
 const EditProduct: React.FC = () => {
@@ -38,11 +43,14 @@ const EditProduct: React.FC = () => {
   const product = (productData as any)?.product as IProduct;
   const updateProduct = useUpdateProduct();
   
-  const [activeTab, setActiveTab] = useState('basic');
+  const [activeTab, setActiveTab] = useState('vendor');
   const [currentStep, setCurrentStep] = useState(1);
   const [inlineError, setInlineError] = useState<string | null>(null);
 
   const [form, setForm] = useState({
+    vendor: '',
+    branch: '',
+    service: '',
     name: '',
     details: '',
     category: '',
@@ -59,6 +67,25 @@ const EditProduct: React.FC = () => {
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [existingImages, setImages] = useState<{ url: string; publicId: string }[]>([]);
 
+  // Vendor search state
+  const [vendorSearchQuery, setVendorSearchQuery] = useState('');
+  const [debouncedVendorSearchQuery, setDebouncedVendorSearchQuery] = useState('');
+  const { data: vendorsData, isLoading: isSearchingVendors } = useGetVendors({
+    search: debouncedVendorSearchQuery,
+  });
+
+  // Branch fetch state (dependent on vendor)
+  const { data: branchesData, isLoading: isLoadingBranches } = useGetBranches({
+    vendorId: form.vendor,
+  });
+
+  // Service search state
+  const [serviceSearchQuery, setServiceSearchQuery] = useState('');
+  const [debouncedServiceSearchQuery, setDebouncedServiceSearchQuery] = useState('');
+  const { data: servicesData, isLoading: isSearchingServices } = useGetServices({
+    search: debouncedServiceSearchQuery,
+  });
+
   // Category search state
   const [categorySearchQuery, setCategorySearchQuery] = useState('');
   const [debouncedCategorySearchQuery, setDebouncedCategorySearchQuery] = useState('');
@@ -71,7 +98,6 @@ const EditProduct: React.FC = () => {
 
   useEffect(() => {
     if (product) {
-      // Flatten arrays of optionIds into individual { variantId, optionId } pairs
       const selectedVariantOptions = product.selectedVariantOptions?.flatMap((sv: any) => 
         (sv.optionIds || []).map((optionId: string) => ({
           variantId: typeof sv.variantId === 'string' ? sv.variantId : (sv.variantId as any)?._id,
@@ -86,11 +112,13 @@ const EditProduct: React.FC = () => {
         }))
       ) || [];
 
-      // Derive active group IDs based on presence of selected options
       const variants = Array.from(new Set(selectedVariantOptions.map(so => so.variantId)));
       const modifiers = Array.from(new Set(selectedModifierOptions.map(so => so.modifierId)));
 
       setForm({
+        vendor: typeof product.vendor === 'string' ? product.vendor : (product.vendor as any)?._id || '',
+        branch: typeof product.branch === 'string' ? product.branch : (product.branch as any)?._id || '',
+        service: typeof product.service === 'string' ? product.service : (product.service as any)?._id || '',
         name: product.name || '',
         details: product.details || '',
         category: typeof product.category === 'string' ? product.category : (product.category as IProductCategory)?._id || '',
@@ -107,6 +135,34 @@ const EditProduct: React.FC = () => {
     }
   }, [product]);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedVendorSearchQuery(vendorSearchQuery);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [vendorSearchQuery]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedServiceSearchQuery(serviceSearchQuery);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [serviceSearchQuery]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedCategorySearchQuery(categorySearchQuery);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [categorySearchQuery]);
+
+  const vendors = (vendorsData as any)?.vendors || [];
+  const branches = (branchesData as any)?.branches || [];
+  const services = (servicesData as any)?.services || [];
+  const categories = (categoriesData as any)?.categories || [];
+  const variants = (variantsData as any)?.variants || [];
+  const modifiers = (modifiersData as any)?.modifiers || [];
+
   const toggleVariantOption = (variantId: string, optionId: string) => {
     setForm(prev => {
       const isSelected = prev.selectedVariantOptions.some(
@@ -122,7 +178,6 @@ const EditProduct: React.FC = () => {
         nextSelectedOptions = [...prev.selectedVariantOptions, { variantId, optionId }];
       }
 
-      // Update variants array: include variantId if it has at least one option selected
       const hasOptionsSelected = nextSelectedOptions.some(so => so.variantId === variantId);
       let nextVariants = prev.variants;
       if (hasOptionsSelected && !prev.variants.includes(variantId)) {
@@ -154,7 +209,6 @@ const EditProduct: React.FC = () => {
         nextSelectedOptions = [...prev.selectedModifierOptions, { modifierId, optionId }];
       }
 
-      // Update modifiers array: include modifierId if it has at least one option selected
       const hasOptionsSelected = nextSelectedOptions.some(so => so.modifierId === modifierId);
       let nextModifiers = prev.modifiers;
       if (hasOptionsSelected && !prev.modifiers.includes(modifierId)) {
@@ -170,17 +224,6 @@ const EditProduct: React.FC = () => {
       };
     });
   };
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedCategorySearchQuery(categorySearchQuery);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [categorySearchQuery]);
-
-  const categories = (categoriesData as any)?.categories || [];
-  const variants = (variantsData as any)?.variants || [];
-  const modifiers = (modifiersData as any)?.modifiers || [];
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -205,8 +248,10 @@ const EditProduct: React.FC = () => {
     if (!targetTab) return false;
     if (targetTab.step < currentStep) return true;
     
-    if (currentStep === 1) return !!form.name;
-    if (currentStep === 2) return !!form.category;
+    if (currentStep === 1) return !!form.vendor && !!form.branch;
+    if (currentStep === 2) return !!form.service;
+    if (currentStep === 3) return !!form.name;
+    if (currentStep === 4) return !!form.category;
     
     return true;
   };
@@ -246,7 +291,24 @@ const EditProduct: React.FC = () => {
     if (activeTab !== 'summary') return;
     setInlineError(null);
 
+    const groupedVariantOptions = form.variants.map(vId => ({
+      variantId: vId,
+      optionIds: form.selectedVariantOptions
+        .filter(so => so.variantId === vId)
+        .map(so => so.optionId)
+    })).filter(group => group.optionIds.length > 0);
+
+    const groupedModifierOptions = form.modifiers.map(mId => ({
+      modifierId: mId,
+      optionIds: form.selectedModifierOptions
+        .filter(so => so.modifierId === mId)
+        .map(so => so.optionId)
+    })).filter(group => group.optionIds.length > 0);
+
     const formData = new FormData();
+    formData.append('vendor', form.vendor);
+    formData.append('branch', form.branch);
+    formData.append('service', form.service);
     formData.append('name', form.name);
     formData.append('details', form.details);
     formData.append('category', form.category);
@@ -255,8 +317,8 @@ const EditProduct: React.FC = () => {
     formData.append('status', String(form.status));
     formData.append('variants', JSON.stringify(form.variants));
     formData.append('modifiers', JSON.stringify(form.modifiers));
-    formData.append('selectedVariantOptions', JSON.stringify(form.selectedVariantOptions));
-    formData.append('selectedModifierOptions', JSON.stringify(form.selectedModifierOptions));
+    formData.append('selectedVariantOptions', JSON.stringify(groupedVariantOptions));
+    formData.append('selectedModifierOptions', JSON.stringify(groupedModifierOptions));
     formData.append('existingImages', JSON.stringify(existingImages));
     form.images.forEach(image => formData.append('images', image));
 
@@ -270,9 +332,11 @@ const EditProduct: React.FC = () => {
 
   const renderStepHeader = () => {
     const progress = (currentStep / TABS.length) * 100;
+    
     return (
       <div className="bg-white border-b border-gray-100 space-y-4 p-4 rounded-t-3xl">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-y-3">
+        <div className="flex flex-col sm:flex-row  items-start sm:items-center sm:justify-between gap-y-3">
+          {/* current step & label */}
           <div className="flex flex-row items-center gap-x-2">
             <div className="h-6 w-6 rounded-full items-center justify-center bg-brand-primary text-white text-xs font-bold flex">
               {currentStep}
@@ -281,31 +345,161 @@ const EditProduct: React.FC = () => {
               {TABS.find(tab => tab.key === activeTab)?.label}
             </span>
           </div>
-          <div className="flex flex-row items-center gap-x-3 md:gap-x-5 overflow-x-auto pb-2 sm:pb-0">
+       
+          {/* Step numbers and labels */}
+          <div className="flex flex-row items-center gap-x-3 md:gap-x-5">
             {TABS.map((tab) => {
               const isActive = tab.key === activeTab;
               const isCompleted = currentStep > tab.step;
+              
               return (
-                <button key={tab.key} onClick={() => handleTabChange(tab.key)} className="items-center flex flex-col" disabled={!validateTabNavigation(tab.key)} type="button">
-                  <div className={`h-7 w-7 rounded-full items-center justify-center flex transition-all ${isActive ? 'bg-brand-primary ring-4 ring-brand-primary/20 shadow-lg' : isCompleted ? 'bg-brand-primary/40' : 'bg-gray-100'}`}>
-                    {isCompleted ? <HiCheck className="w-5 h-5 text-white" /> : <span className={`text-sm font-bold ${isActive ? 'text-white' : 'text-gray-400'}`}>{tab.step}</span>}
+                <button
+                  key={tab.key}
+                  onClick={() => handleTabChange(tab.key)}
+                  className="items-center flex flex-col"
+                  disabled={!validateTabNavigation(tab.key)}
+                  type="button"
+                >
+                  <div className="items-center flex flex-col">
+                    {/* Step number circle */}
+                    <div className={`h-7 w-7 rounded-full items-center justify-center flex transition-all ${
+                      isActive 
+                        ? 'bg-brand-primary ring-4 ring-brand-primary/20 shadow-lg' 
+                        : isCompleted 
+                          ? 'bg-brand-primary/40' 
+                          : 'bg-gray-100'
+                    }`}>
+                      {isCompleted ? (
+                        <HiCheck className="w-5 h-5 text-white" />
+                      ) : (
+                        <span className={`text-sm font-bold ${
+                          isActive ? 'text-white' : 'text-gray-400'
+                        }`}>
+                          {tab.step}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </button>
               );
             })}
           </div>
         </div>
+        
+        {/* Progress bar */}
         <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-          <div className="h-full bg-brand-primary rounded-full transition-all duration-500 ease-out" style={{ width: `${progress}%` }} />
+          <div 
+            className="h-full bg-brand-primary rounded-full transition-all duration-500 ease-out"
+            style={{ width: `${progress}%` }}
+          />
         </div>
       </div>
     );
   };
 
   const renderContent = () => {
+    const selectedVendor = vendors.find((v: IVendor) => v._id === form.vendor) || (product?.vendor && typeof product.vendor !== 'string' ? (product.vendor as IVendor) : null);
+    const selectedBranch = branches.find((b: IBranch) => b._id === form.branch) || (product?.branch && typeof product.branch !== 'string' ? (product.branch as IBranch) : null);
+    const selectedService = services.find((s: IService) => s._id === form.service) || (product?.service && typeof product.service !== 'string' ? (product.service as IService) : null);
     const selectedCategory = categories.find((c: IProductCategory) => c._id === form.category) || (product?.category && typeof product.category !== 'string' ? (product.category as IProductCategory) : null);
 
     switch (activeTab) {
+      case 'vendor':
+        return (
+          <div className="space-y-6 animate-fadeIn">
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <label className="label">Search Vendor <span className="text-red-500">*</span></label>
+                <div className="relative">
+                  <input type="text" value={vendorSearchQuery} onChange={e => setVendorSearchQuery(e.target.value)} className="input pr-10" placeholder="Type to search vendor..." />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    {isSearchingVendors ? <div className="animate-spin h-4 w-4 border-2 border-brand-primary border-t-transparent rounded-full" /> : <HiOutlineSearch className="text-gray-400" />}
+                  </div>
+                </div>
+              </div>
+
+              {selectedVendor && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-brand-primary">
+                    <HiCheck className="w-4 h-4" />
+                    <span className="text-xs font-bold uppercase tracking-wider">Selected Vendor</span>
+                  </div>
+                  <div className="p-4 rounded-2xl border border-brand-primary bg-brand-primary/5 flex items-center gap-4 animate-fadeIn">
+                    <div className="h-10 w-10 rounded-xl bg-brand-primary text-white flex items-center justify-center font-bold">{selectedVendor.name[0]}</div>
+                    <span className="font-bold text-gray-900">{selectedVendor.name}</span>
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {vendors.map((v: IVendor) => (
+                  <button key={v._id} type="button" onClick={() => setForm({...form, vendor: v._id, branch: ''})} className={`p-4 rounded-2xl border transition-all flex items-center gap-4 text-left ${form.vendor === v._id ? 'border-brand-primary bg-brand-primary/5 shadow-sm' : 'border-gray-100 hover:border-brand-primary/30'}`}>
+                    <div className={`h-10 w-10 rounded-xl flex items-center justify-center font-bold ${form.vendor === v._id ? 'bg-brand-primary text-white' : 'bg-gray-100 text-brand-primary'}`}>{v.name[0]}</div>
+                    <span className="font-semibold text-gray-900 truncate">{v.name}</span>
+                  </button>
+                ))}
+              </div>
+
+              {form.vendor && (
+                <div className="pt-6 border-t border-gray-100 space-y-4 animate-fadeIn">
+                  <label className="label">Select Branch <span className="text-red-500">*</span></label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {isLoadingBranches ? (
+                      [...Array(2)].map((_, i) => (
+                        <div key={i} className="h-16 rounded-2xl bg-gray-100 animate-pulse" />
+                      ))
+                    ) : (
+                      branches.map((b: IBranch) => (
+                        <button key={b._id} type="button" onClick={() => setForm({...form, branch: b._id})} className={`p-4 rounded-2xl border transition-all flex items-center gap-4 text-left ${form.branch === b._id ? 'border-brand-primary bg-brand-primary/5 shadow-sm' : 'border-gray-100 hover:border-brand-primary/30'}`}>
+                          <div className={`h-10 w-10 rounded-xl flex items-center justify-center font-bold ${form.branch === b._id ? 'bg-brand-primary text-white' : 'bg-gray-100 text-brand-primary'}`}>{b.name[0]}</div>
+                          <span className="font-semibold text-gray-900 truncate">{b.name}</span>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      case 'service':
+        return (
+          <div className="space-y-6 animate-fadeIn">
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <label className="label">Search Service <span className="text-red-500">*</span></label>
+                <div className="relative">
+                  <input type="text" value={serviceSearchQuery} onChange={e => setServiceSearchQuery(e.target.value)} className="input pr-10" placeholder="Type to search service..." />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    {isSearchingServices ? <div className="animate-spin h-4 w-4 border-2 border-brand-primary border-t-transparent rounded-full" /> : <HiOutlineSearch className="text-gray-400" />}
+                  </div>
+                </div>
+              </div>
+
+              {selectedService && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-brand-primary">
+                    <HiCheck className="w-4 h-4" />
+                    <span className="text-xs font-bold uppercase tracking-wider">Selected Service</span>
+                  </div>
+                  <div className="p-4 rounded-2xl border border-brand-primary bg-brand-primary/5 flex items-center gap-4 animate-fadeIn">
+                    <div className="h-10 w-10 rounded-xl bg-brand-primary text-white flex items-center justify-center font-bold">{selectedService.name[0]}</div>
+                    <span className="font-bold text-gray-900">{selectedService.name}</span>
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {services.map((s: IService) => (
+                  <button key={s._id} type="button" onClick={() => setForm({...form, service: s._id})} className={`p-4 rounded-2xl border transition-all flex items-center gap-4 text-left ${form.service === s._id ? 'border-brand-primary bg-brand-primary/5 shadow-sm' : 'border-gray-100 hover:border-brand-primary/30'}`}>
+                    <div className={`h-10 w-10 rounded-xl flex items-center justify-center font-bold ${form.service === s._id ? 'bg-brand-primary text-white' : 'bg-gray-100 text-brand-primary'}`}>{s.name[0]}</div>
+                    <span className="font-semibold text-gray-900 truncate">{s.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
       case 'basic':
         return (
           <div className="space-y-6 animate-fadeIn">
@@ -404,7 +598,7 @@ const EditProduct: React.FC = () => {
                         {v.options.map(option => {
                           const isOptionSelected = form.selectedVariantOptions.some(so => so.variantId === v._id && so.optionId === option._id);
                           return (
-                            <button key={option._id} type="button" onClick={() => toggleVariantOption(v._id, option._id)} className={`p-4 rounded-2xl border text-left transition-all flex items-center gap-3 ${isOptionSelected ? 'border-brand-primary bg-white shadow-md' : 'border-gray-200 bg-white hover:border-brand-primary/30'}`}>
+                            <button key={option._id} type="button" onClick={() => toggleVariantOption(v._id, option._id)} className={`p-4 rounded-2xl border text-left transition-all flex items-center gap-3 bg-white ${isOptionSelected ? 'border-brand-primary shadow-md' : 'border-gray-200 hover:border-brand-primary/30'}`}>
                               <div className={`h-5 w-5 rounded border flex items-center justify-center shrink-0 ${isOptionSelected ? 'bg-brand-primary border-brand-primary' : 'border-gray-300'}`}>
                                 {isOptionSelected && <HiCheck className="text-white text-xs" />}
                               </div>
@@ -439,7 +633,7 @@ const EditProduct: React.FC = () => {
                         {m.options.map(option => {
                           const isOptionSelected = form.selectedModifierOptions.some(so => so.modifierId === m._id && so.optionId === option._id);
                           return (
-                            <button key={option._id} type="button" onClick={() => toggleModifierOption(m._id, option._id)} className={`p-4 rounded-2xl border text-left transition-all flex items-center gap-3 ${isOptionSelected ? 'border-brand-primary bg-white shadow-md' : 'border-gray-200 bg-white hover:border-brand-primary/30'}`}>
+                            <button key={option._id} type="button" onClick={() => toggleModifierOption(m._id, option._id)} className={`p-4 rounded-2xl border text-left transition-all flex items-center gap-3 bg-white ${isOptionSelected ? 'border-brand-primary shadow-md' : 'border-gray-200 hover:border-brand-primary/30'}`}>
                               <div className={`h-5 w-5 rounded border flex items-center justify-center shrink-0 ${isOptionSelected ? 'bg-brand-primary border-brand-primary' : 'border-gray-300'}`}>
                                 {isOptionSelected && <HiCheck className="text-white text-xs" />}
                               </div>
@@ -510,6 +704,42 @@ const EditProduct: React.FC = () => {
       case 'summary':
         return (
           <div className="space-y-6 animate-fadeIn">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-gray-50 rounded-3xl p-6 border border-gray-100 space-y-4">
+                    <div className="flex items-center justify-between border-b border-gray-200 pb-4">
+                        <div className="flex items-center gap-2 text-brand-primary">
+                            <MdStore size={20} />
+                            <h3 className="text-sm font-bold uppercase tracking-wider">Vendor & Branch</h3>
+                        </div>
+                        <button type="button" onClick={() => handleTabChange('vendor')} className="text-brand-primary transition-colors hover:scale-110"><HiOutlinePencilAlt size={18} /></button>
+                    </div>
+                    <div className="grid grid-cols-1 gap-4">
+                        <div>
+                            <span className="text-[10px] font-bold text-gray-400 uppercase">Vendor</span>
+                            <p className="text-sm font-semibold">{selectedVendor?.name || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <span className="text-[10px] font-bold text-gray-400 uppercase">Branch</span>
+                            <p className="text-sm font-semibold">{selectedBranch?.name || 'N/A'}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-gray-50 rounded-3xl p-6 border border-gray-100 space-y-4">
+                    <div className="flex items-center justify-between border-b border-gray-200 pb-4">
+                        <div className="flex items-center gap-2 text-brand-primary">
+                            <MdMiscellaneousServices size={20} />
+                            <h3 className="text-sm font-bold uppercase tracking-wider">Service</h3>
+                        </div>
+                        <button type="button" onClick={() => handleTabChange('service')} className="text-brand-primary transition-colors hover:scale-110"><HiOutlinePencilAlt size={18} /></button>
+                    </div>
+                    <div>
+                        <span className="text-[10px] font-bold text-gray-400 uppercase">Service Name</span>
+                        <p className="text-sm font-semibold">{selectedService?.name || 'N/A'}</p>
+                    </div>
+                </div>
+            </div>
+
             <div className="bg-gray-50 rounded-3xl p-6 border border-gray-100 space-y-6">
                 <div className="flex items-center justify-between border-b border-gray-200 pb-4">
                     <div className="flex items-center gap-2 text-brand-primary">
@@ -567,24 +797,34 @@ const EditProduct: React.FC = () => {
                         </div>
                         <button type="button" onClick={() => handleTabChange('variants')} className="text-brand-primary transition-colors hover:scale-110"><HiOutlinePencilAlt size={18} /></button>
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="space-y-3">
                         {form.variants.length > 0 ? form.variants.map(id => {
                             const v = variants.find((v: IVariant) => v._id === id);
                             const selectedOptions = form.selectedVariantOptions.filter(so => so.variantId === id);
                             return (
-                                <div key={id} className="space-y-1 w-full">
-                                    <span className="px-3 py-1 bg-white border border-gray-200 rounded-full text-xs font-bold text-brand-primary">{v?.name || id}</span>
-                                    {selectedOptions.length > 0 && (
-                                        <div className="pl-4 flex flex-wrap gap-1">
-                                            {selectedOptions.map(so => {
-                                                const opt = v?.options.find((o: any) => o._id === so.optionId);
-                                                return <span key={so.optionId} className="text-[10px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{opt?.value || opt?.name || so.optionId}</span>;
-                                            })}
-                                        </div>
-                                    )}
+                                <div key={id} className="bg-white p-3 rounded-2xl border border-gray-100 shadow-sm space-y-2 animate-fadeIn">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{v?.name || 'Variant'}</span>
+                                        <span className="text-[10px] font-bold text-brand-primary bg-brand-primary/5 px-2 py-0.5 rounded-full">{selectedOptions.length} Options</span>
+                                    </div>
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {selectedOptions.map(so => {
+                                            const opt = v?.options.find((o: any) => o._id === so.optionId);
+                                            return (
+                                                <span key={so.optionId} className="inline-flex items-center px-2 py-1 rounded-lg bg-gray-50 border border-gray-100 text-[11px] font-medium text-gray-700">
+                                                    {opt?.value || opt?.name || 'Option'}
+                                                    {opt?.price ? <span className="ml-1 text-brand-primary font-bold">(+${opt.price})</span> : null}
+                                                </span>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
                             );
-                        }) : <span className="text-xs text-gray-400 italic">No variants selected</span>}
+                        }) : (
+                            <div className="text-center py-6 bg-white rounded-2xl border border-dashed border-gray-200">
+                                <span className="text-xs text-gray-400 italic">No variants selected</span>
+                            </div>
+                        )}
                     </div>
                 </div>
                 <div className="bg-gray-50 rounded-3xl p-6 border border-gray-100 space-y-4">
@@ -595,24 +835,34 @@ const EditProduct: React.FC = () => {
                         </div>
                         <button type="button" onClick={() => handleTabChange('modifiers')} className="text-brand-primary transition-colors hover:scale-110"><HiOutlinePencilAlt size={18} /></button>
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="space-y-3">
                         {form.modifiers.length > 0 ? form.modifiers.map(id => {
                             const m = modifiers.find((m: IProductModifier) => m._id === id);
                             const selectedOptions = form.selectedModifierOptions.filter(so => so.modifierId === id);
                             return (
-                                <div key={id} className="space-y-1 w-full">
-                                    <span className="px-3 py-1 bg-white border border-gray-200 rounded-full text-xs font-bold text-brand-primary">{m?.name || id}</span>
-                                    {selectedOptions.length > 0 && (
-                                        <div className="pl-4 flex flex-wrap gap-1">
-                                            {selectedOptions.map(so => {
-                                                const opt = m?.options.find((o: any) => o._id === so.optionId);
-                                                return <span key={so.optionId} className="text-[10px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{opt?.value || opt?.name || so.optionId}</span>;
-                                            })}
-                                        </div>
-                                    )}
+                                <div key={id} className="bg-white p-3 rounded-2xl border border-gray-100 shadow-sm space-y-2 animate-fadeIn">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{m?.name || 'Modifier'}</span>
+                                        <span className="text-[10px] font-bold text-brand-primary bg-brand-primary/5 px-2 py-0.5 rounded-full">{selectedOptions.length} Options</span>
+                                    </div>
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {selectedOptions.map(so => {
+                                            const opt = m?.options.find((o: any) => o._id === so.optionId);
+                                            return (
+                                                <span key={so.optionId} className="inline-flex items-center px-2 py-1 rounded-lg bg-gray-50 border border-gray-100 text-[11px] font-medium text-gray-700">
+                                                    {opt?.value || opt?.name || 'Option'}
+                                                    {opt?.price ? <span className="ml-1 text-brand-primary font-bold">(+${opt.price})</span> : null}
+                                                </span>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
                             );
-                        }) : <span className="text-xs text-gray-400 italic">No modifiers selected</span>}
+                        }) : (
+                            <div className="text-center py-6 bg-white rounded-2xl border border-dashed border-gray-200">
+                                <span className="text-xs text-gray-400 italic">No modifiers selected</span>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
