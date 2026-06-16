@@ -293,9 +293,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         dispatch(updateUser(updatedUser));
         dispatch(setAuthSuccess({
           user: updatedUser,
-          roles: roles,
-          vendor: vendor,
-          branch: branch
+          roles: roles || [],
+          vendor: vendor || undefined,
+          branch: branch || undefined
         }));
       }
 

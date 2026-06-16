@@ -15,6 +15,7 @@ import {
 import { useCreateBranch } from '../../../tanstack/useBranches';
 import { useGetVendors } from '../../../tanstack/useVendors';
 import { useSearchLocation } from '../../../tanstack/useLocations';
+import { useAuth } from '../../../contexts/AuthContext';
 import type { IVendor, ILocationResult, WorkingHours } from '../../../types/api.types';
 
 const TABS = [
@@ -32,6 +33,7 @@ const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'
 const CreateBranch: React.FC = () => {
   const navigate = useNavigate();
   const createBranch = useCreateBranch();
+  const { vendor } = useAuth();
   
   const [activeTab, setActiveTab] = useState('owner');
   const [currentStep, setCurrentStep] = useState(1);
@@ -79,6 +81,12 @@ const CreateBranch: React.FC = () => {
   const [locationQuery, setLocationQuery] = useState('');
   const [debouncedLocationQuery, setDebouncedLocationQuery] = useState('');
   const { data: locationResults, isLoading: isSearchingLocation } = useSearchLocation(debouncedLocationQuery);
+
+  useEffect(() => {
+    if (vendor?._id) {
+      setForm(prev => ({ ...prev, vendorId: vendor._id }));
+    }
+  }, [vendor]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -289,6 +297,7 @@ const CreateBranch: React.FC = () => {
                     onChange={(e) => setVendorSearchQuery(e.target.value)} 
                     className="input pr-10" 
                     placeholder="Search by name or email..." 
+                    disabled={!!vendor?._id}
                   />
                   <div className="absolute right-3 top-1/2 -translate-y-1/2">
                     {isSearchingVendors ? (
@@ -304,7 +313,7 @@ const CreateBranch: React.FC = () => {
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-brand-primary">
                     <HiCheck className="w-4 h-4" />
-                    <span className="text-xs font-bold uppercase tracking-wider">Selected Vendor</span>
+                    <span className="text-xs font-bold uppercase tracking-wider">{!!vendor?._id ? 'Fixed Vendor' : 'Selected Vendor'}</span>
                   </div>
                   <div className="p-4 rounded-2xl border border-brand-primary bg-brand-primary/5 shadow-sm flex items-center gap-4 relative animate-fadeIn">
                     <div className="h-12 w-12 rounded-full bg-brand-primary text-white flex items-center justify-center font-bold text-lg shadow-sm">
@@ -353,9 +362,10 @@ const CreateBranch: React.FC = () => {
                       key={v._id}
                       type="button"
                       onClick={() => setForm({...form, vendorId: v._id})}
+                      disabled={!!vendor?._id}
                       className={`p-4 rounded-2xl border transition-all flex items-center gap-4 text-left ${
                         form.vendorId === v._id ? 'border-brand-primary bg-brand-primary/5 shadow-sm' : 'border-gray-100 hover:border-brand-primary/30'
-                      }`}
+                      } ${!!vendor?._id ? 'cursor-not-allowed opacity-50' : ''}`}
                     >
                       <div className={`h-12 w-12 rounded-full flex items-center justify-center font-bold text-lg ${
                         form.vendorId === v._id ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-400'

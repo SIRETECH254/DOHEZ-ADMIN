@@ -2,19 +2,23 @@ import React, { useCallback, useState, useMemo, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { MdAdd } from 'react-icons/md';
 import { HiOutlineEye, HiOutlinePencil, HiOutlineTrash } from 'react-icons/hi';
-import { FiSearch, FiList, FiAlertTriangle } from 'react-icons/fi';
+import { FiSearch, FiList, FiAlertTriangle, FiFilter } from 'react-icons/fi';
 import { useGetProductModifiers, useDeleteProductModifier } from '../../../tanstack/useProductModifiers';
+import { useGetBranches } from '../../../tanstack/useBranches';
+import { useAuth } from '../../../contexts/AuthContext';
 import Pagination from '../../../components/ui/Pagination';
 import ConfirmModal from '../../../components/ui/ConfirmModal';
-import type { IProductModifier } from '../../../types/api.types';
+import type { IProductModifier, IBranch } from '../../../types/api.types';
 import { getInitials } from '../../../utils';
 
 const ProductModifierList: React.FC = () => {
   const navigate = useNavigate();
+  const { vendor, branch } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [filterBranch, setFilterBranch] = useState<string>('all');
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<{ id: string; name: string } | null>(null);
 
@@ -26,7 +30,27 @@ const ProductModifierList: React.FC = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  const { data, isLoading, isError, error } = useGetProductModifiers();
+  const branchParams = useMemo(() => ({
+    vendorId: vendor?._id || '',
+  }), [vendor]);
+
+  const { data: branchesData } = useGetBranches(branchParams);
+  const branches = branchesData?.branches || [];
+
+  const params = useMemo(() => {
+    const apiParams: any = {};
+    if (vendor?._id) {
+      apiParams.vendor = vendor._id;
+    }
+    if (branch?._id) {
+      apiParams.branch = branch._id;
+    } else if (filterBranch !== 'all') {
+      apiParams.branch = filterBranch;
+    }
+    return apiParams;
+  }, [vendor?._id, branch?._id, filterBranch]);
+
+  const { data, isLoading, isError, error } = useGetProductModifiers(params);
   const deleteProductModifier = useDeleteProductModifier();
 
   // Assuming data structure { modifiers: [...] } based on patterns
@@ -97,6 +121,25 @@ const ProductModifierList: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap gap-2">
+            {!branch?._id && (
+              <div className="relative">
+                <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={16} />
+                <select
+                  value={filterBranch}
+                  onChange={(e) => {
+                    setFilterBranch(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="input-select pl-10"
+                >
+                  <option value="all">All Branches</option>
+                  {branches.map((branchItem: IBranch) => (
+                    <option key={branchItem._id} value={branchItem._id}>{branchItem.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             <div className="relative">
               <FiList className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
               <select

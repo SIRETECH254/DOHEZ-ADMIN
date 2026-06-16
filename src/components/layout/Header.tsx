@@ -20,7 +20,7 @@ type NavbarProps = {
 }
 
 const Header = ({ isSidebarOpen, onToggleSidebar }: NavbarProps) => {
-  const { user, logout } = useAuth()
+  const { user, vendor, branch, logout } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -69,6 +69,11 @@ const Header = ({ isSidebarOpen, onToggleSidebar }: NavbarProps) => {
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-primary text-white">
               <span className="text-sm font-semibold">AA</span>
             </div>
+            {(vendor || branch) && (
+              <span className="text-sm font-semibold text-gray-800 hidden lg:block whitespace-nowrap">
+                {branch ? branch.name : vendor?.name}
+              </span>
+            )}
           </div>
         </div>
 

@@ -649,7 +649,7 @@ export const productModifierAPI = {
     api.post('/api/product-modifiers', modifierData),
 
   // Get all product modifiers
-  getProductModifiers: () => api.get('/api/product-modifiers'),
+  getProductModifiers: (params?: any) => api.get('/api/product-modifiers', { params }),
 
   // Get single product modifier details
   getProductModifierById: (modifierId: string) => api.get(`/api/product-modifiers/${modifierId}`),

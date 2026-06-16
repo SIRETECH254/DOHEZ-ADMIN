@@ -4,12 +4,15 @@ import { HiOutlineEye } from 'react-icons/hi';
 import { FiSearch, FiFilter, FiList, FiAlertTriangle } from 'react-icons/fi';
 import { format } from 'date-fns';
 import { useGetReceipts } from '../../../tanstack/useReceipts';
+import { useGetBranches } from '../../../tanstack/useBranches';
+import { useAuth } from '../../../contexts/AuthContext';
 import Pagination from '../../../components/ui/Pagination';
-import type { IReceipt } from '../../../types/api.types';
+import type { IReceipt, IBranch } from '../../../types/api.types';
 import { formatCurrency } from '../../../utils';
 
 const ReceiptList: React.FC = () => {
   const navigate = useNavigate();
+  const { vendor, branch } = useAuth();
   
   // Search state with debounce
   const [searchTerm, setSearchTerm] = useState('');
@@ -17,6 +20,7 @@ const ReceiptList: React.FC = () => {
 
   // Filter state
   const [filterPaymentMethod, setFilterPaymentMethod] = useState<string>('all');
+  const [filterBranch, setFilterBranch] = useState<string>('all');
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -34,6 +38,9 @@ const ReceiptList: React.FC = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
+  const { data: branchesData } = useGetBranches({ vendorId: vendor?._id });
+  const branches = branchesData?.branches || [];
+
   const formatIssuedAt = (dateString: string) => {
     return format(new Date(dateString), 'MMM d, yyyy h:mm a');
   };
@@ -47,6 +54,10 @@ const ReceiptList: React.FC = () => {
       limit: itemsPerPage,
     };
 
+    if (vendor?._id) {
+      apiParams.vendor = vendor._id;
+    }
+
     if (debouncedSearch.trim()) {
       apiParams.search = debouncedSearch.trim();
     }
@@ -55,8 +66,14 @@ const ReceiptList: React.FC = () => {
       apiParams.paymentMethod = filterPaymentMethod;
     }
 
+    if (branch?._id) {
+      apiParams.branch = branch._id;
+    } else if (filterBranch !== 'all') {
+      apiParams.branch = filterBranch;
+    }
+
     return apiParams;
-  }, [debouncedSearch, filterPaymentMethod, currentPage, itemsPerPage]);
+  }, [debouncedSearch, filterPaymentMethod, filterBranch, branch?._id, vendor?._id, currentPage, itemsPerPage]);
 
   const { data, isLoading, isError, error } = useGetReceipts(params);
 
@@ -110,6 +127,24 @@ const ReceiptList: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap gap-2">
+            {!branch?._id && (
+              <div className="relative">
+                <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={16} />
+                <select
+                  value={filterBranch}
+                  onChange={(e) => {
+                    setFilterBranch(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="input-select pl-10"
+                >
+                  <option value="all">All Branches</option>
+                  {branches.map((branchItem: IBranch) => (
+                    <option key={branchItem._id} value={branchItem._id}>{branchItem.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
             {/* Payment Method Filter */}
             <div className="relative">
               <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={16} />

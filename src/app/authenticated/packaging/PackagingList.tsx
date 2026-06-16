@@ -4,19 +4,23 @@ import { MdAdd } from 'react-icons/md';
 import { HiOutlineEye, HiOutlinePencil, HiOutlineTrash } from 'react-icons/hi';
 import { FiSearch, FiFilter, FiList, FiAlertTriangle } from 'react-icons/fi';
 import { useGetPackaging, useDeletePackaging } from '../../../tanstack/usePackaging';
+import { useGetBranches } from '../../../tanstack/useBranches';
+import { useAuth } from '../../../contexts/AuthContext';
 import StatusBadge from '../../../components/ui/StatusBadge';
 import Pagination from '../../../components/ui/Pagination';
 import ConfirmModal from '../../../components/ui/ConfirmModal';
-import type { IPackaging } from '../../../types/api.types';
+import type { IPackaging, IBranch } from '../../../types/api.types';
 
 const PackagingList: React.FC = () => {
   const navigate = useNavigate();
+  const { vendor, branch } = useAuth();
   // Search state with debounce
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
 
   // Filter state
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [filterBranch, setFilterBranch] = useState<string>('all');
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -41,6 +45,9 @@ const PackagingList: React.FC = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
+  const { data: branchesData } = useGetBranches({ vendorId: vendor?._id });
+  const branches = branchesData?.branches || [];
+
   /**
    * Build API params from filters, search, and pagination
    */
@@ -50,6 +57,10 @@ const PackagingList: React.FC = () => {
       limit: itemsPerPage,
     };
 
+    if (vendor?._id) {
+      apiParams.vendor = vendor._id;
+    }
+
     if (debouncedSearch.trim()) {
       apiParams.search = debouncedSearch.trim();
     }
@@ -58,8 +69,14 @@ const PackagingList: React.FC = () => {
       apiParams.isActive = filterStatus === 'active';
     }
 
+    if (branch?._id) {
+      apiParams.branch = branch._id;
+    } else if (filterBranch !== 'all') {
+      apiParams.branch = filterBranch;
+    }
+
     return apiParams;
-  }, [debouncedSearch, filterStatus, currentPage, itemsPerPage]);
+  }, [debouncedSearch, filterStatus, filterBranch, branch?._id, vendor?._id, currentPage, itemsPerPage]);
 
   const { data, isLoading, isError, error } = useGetPackaging(params);
   const deletePackaging = useDeletePackaging();
@@ -142,6 +159,24 @@ const PackagingList: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap gap-2">
+            {!branch?._id && (
+              <div className="relative">
+                <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={16} />
+                <select
+                  value={filterBranch}
+                  onChange={(e) => {
+                    setFilterBranch(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="input-select pl-10"
+                >
+                  <option value="all">All Branches</option>
+                  {branches.map((branchItem: IBranch) => (
+                    <option key={branchItem._id} value={branchItem._id}>{branchItem.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
             <div className="relative">
               <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={16} />
               <select

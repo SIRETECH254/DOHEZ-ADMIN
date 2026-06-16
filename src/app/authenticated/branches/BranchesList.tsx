@@ -4,12 +4,14 @@ import { MdAdd, MdLocationOn } from 'react-icons/md';
 import { HiOutlineEye, HiOutlinePencil, HiOutlineTrash } from 'react-icons/hi';
 import { FiSearch, FiList, FiAlertTriangle } from 'react-icons/fi';
 import { useGetBranches, useDeleteBranch } from '../../../tanstack/useBranches';
+import { useAuth } from '../../../contexts/AuthContext';
 import Pagination from '../../../components/ui/Pagination';
 import ConfirmModal from '../../../components/ui/ConfirmModal';
 import type { IBranch, IVendor } from '../../../types/api.types';
 
 const BranchesList: React.FC = () => {
   const navigate = useNavigate();
+  const { vendor } = useAuth();
   // Search state with debounce
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -49,9 +51,13 @@ const BranchesList: React.FC = () => {
     if (debouncedSearch.trim()) {
       apiParams.search = debouncedSearch.trim();
     }
+    
+    if (vendor?._id) {
+      apiParams.vendorId = vendor._id;
+    }
 
     return apiParams;
-  }, [debouncedSearch, currentPage, itemsPerPage]);
+  }, [debouncedSearch, currentPage, itemsPerPage, vendor]);
 
   const { data, isLoading, isError, error } = useGetBranches(params);
   const deleteBranch = useDeleteBranch();

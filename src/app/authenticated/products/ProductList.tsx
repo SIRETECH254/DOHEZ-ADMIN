@@ -4,19 +4,23 @@ import { MdAdd } from 'react-icons/md';
 import { HiOutlineEye, HiOutlinePencil, HiOutlineTrash } from 'react-icons/hi';
 import { FiSearch, FiFilter, FiList, FiAlertTriangle } from 'react-icons/fi';
 import { useGetProducts, useDeleteProduct } from '../../../tanstack/useProducts';
+import { useGetBranches } from '../../../tanstack/useBranches';
+import { useAuth } from '../../../contexts/AuthContext';
 import Pagination from '../../../components/ui/Pagination';
 import ConfirmModal from '../../../components/ui/ConfirmModal';
 import StatusBadge from '../../../components/ui/StatusBadge';
-import type { IProduct } from '../../../types/api.types';
+import type { IProduct, IBranch } from '../../../types/api.types';
 import { getInitials } from '../../../utils';
 
 const ProductList: React.FC = () => {
   const navigate = useNavigate();
+  const { vendor, branch } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [filterBranch, setFilterBranch] = useState<string>('all');
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<{ id: string; name: string } | null>(null);
 
@@ -28,17 +32,28 @@ const ProductList: React.FC = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
+  const { data: branchesData } = useGetBranches({ vendorId: vendor?._id });
+  const branches = branchesData?.branches || [];
+
   const params = useMemo(() => {
     const apiParams: any = {
       page: currentPage,
       limit: itemsPerPage,
       search: debouncedSearch.trim() || undefined,
     };
+    if (vendor?._id) {
+      apiParams.vendor = vendor._id;
+    }
     if (filterStatus !== 'all') {
       apiParams.status = filterStatus === 'active';
     }
+    if (branch?._id) {
+      apiParams.branch = branch._id;
+    } else if (filterBranch !== 'all') {
+      apiParams.branch = filterBranch;
+    }
     return apiParams;
-  }, [debouncedSearch, filterStatus, currentPage, itemsPerPage]);
+  }, [debouncedSearch, filterStatus, filterBranch, branch?._id, vendor?._id, currentPage, itemsPerPage]);
 
   const { data, isLoading, isError, error } = useGetProducts(params);
   const deleteProduct = useDeleteProduct();
@@ -106,6 +121,25 @@ const ProductList: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap gap-2">
+            {!branch?._id && (
+              <div className="relative">
+                <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={16} />
+                <select
+                  value={filterBranch}
+                  onChange={(e) => {
+                    setFilterBranch(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="input-select pl-10"
+                >
+                  <option value="all">All Branches</option>
+                  {branches.map((branchItem: IBranch) => (
+                    <option key={branchItem._id} value={branchItem._id}>{branchItem.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             <div className="relative">
               <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={16} />
               <select

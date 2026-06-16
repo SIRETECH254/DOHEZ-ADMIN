@@ -1,16 +1,20 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { FiSearch, FiList, FiAlertTriangle, FiChevronDown, FiChevronUp, FiEdit2, FiCheck, FiX } from 'react-icons/fi';
+import { FiSearch, FiList, FiAlertTriangle, FiChevronDown, FiChevronUp, FiEdit2, FiCheck, FiX, FiFilter } from 'react-icons/fi';
 import { useGetProducts, useUpdateProductSKU } from '../../../tanstack/useProducts';
+import { useGetBranches } from '../../../tanstack/useBranches';
+import { useAuth } from '../../../contexts/AuthContext';
 import { useGetProductVariants } from '../../../tanstack/useProductVariants';
 import Pagination from '../../../components/ui/Pagination';
-import type { IProduct, ISKU, IVariant } from '../../../types/api.types';
+import type { IProduct, ISKU, IVariant, IBranch } from '../../../types/api.types';
 import { getInitials } from '../../../utils';
 
 const InventoryList: React.FC = () => {
+  const { vendor, branch } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [filterBranch, setFilterBranch] = useState<string>('all');
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
   
   // Modal state
@@ -33,11 +37,28 @@ const InventoryList: React.FC = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  const params = useMemo(() => ({
-    page: currentPage,
-    limit: itemsPerPage,
-    search: debouncedSearch.trim() || undefined,
-  }), [debouncedSearch, currentPage, itemsPerPage]);
+  const { data: branchesData } = useGetBranches({ vendorId: vendor?._id });
+  const branches = branchesData?.branches || [];
+
+  const params = useMemo(() => {
+    const apiParams: any = {
+      page: currentPage,
+      limit: itemsPerPage,
+      search: debouncedSearch.trim() || undefined,
+    };
+
+    if (vendor?._id) {
+      apiParams.vendor = vendor._id;
+    }
+
+    if (branch?._id) {
+      apiParams.branch = branch._id;
+    } else if (filterBranch !== 'all') {
+      apiParams.branch = filterBranch;
+    }
+
+    return apiParams;
+  }, [debouncedSearch, currentPage, itemsPerPage, branch?._id, vendor?._id, filterBranch]);
 
   const { data, isLoading, isError, error } = useGetProducts(params);
   const { data: variantsData } = useGetProductVariants({ limit: 100 });
@@ -149,6 +170,24 @@ const InventoryList: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap gap-2">
+            {!branch?._id && (
+              <div className="relative">
+                <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={16} />
+                <select
+                  value={filterBranch}
+                  onChange={(e) => {
+                    setFilterBranch(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="input-select pl-10"
+                >
+                  <option value="all">All Branches</option>
+                  {branches.map((branchItem: IBranch) => (
+                    <option key={branchItem._id} value={branchItem._id}>{branchItem.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
             <div className="relative">
               <FiList className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={16} />
               <select

@@ -22,18 +22,18 @@ import { useGetBranches } from '../../../tanstack/useBranches';
 import type { IProduct, IProductCategory, IVendor, IBranch } from '../../../types/api.types';
 
 const TABS = [
-  { key: 'basic', label: 'Basic Info', step: 1 },
-  { key: 'discount', label: 'Discount Rules', step: 2 },
-  { key: 'limits', label: 'Usage Limits', step: 3 },
-  { key: 'targets', label: 'Targets', step: 4 },
-  { key: 'scope', label: 'Scope', step: 5 },
+  { key: 'vendor', label: 'Vendor & Branch', step: 1 },
+  { key: 'basic', label: 'Basic Info', step: 2 },
+  { key: 'discount', label: 'Discount Rules', step: 3 },
+  { key: 'limits', label: 'Usage Limits', step: 4 },
+  { key: 'targets', label: 'Targets', step: 5 },
   { key: 'summary', label: 'Summary', step: 6 },
 ];
 
 const CreateCoupon: React.FC = () => {
   const navigate = useNavigate();
   const createCoupon = useCreateCoupon();
-  const [activeTab, setActiveTab] = useState('basic');
+  const [activeTab, setActiveTab] = useState('vendor');
   const [currentStep, setCurrentStep] = useState(1);
   const [inlineError, setInlineError] = useState<string | null>(null);
 
@@ -60,21 +60,57 @@ const CreateCoupon: React.FC = () => {
   // Search states
   const [productSearch, setProductSearch] = useState('');
   const [categorySearch, setCategorySearch] = useState('');
-  const [vendorSearch, setVendorSearch] = useState('');
-  const [branchSearch, setBranchSearch] = useState('');
+  
+  // Vendor search state
+  const [vendorSearchQuery, setVendorSearchQuery] = useState('');
+  const [debouncedVendorSearchQuery, setDebouncedVendorSearchQuery] = useState('');
+  const { data: vendorsData, isLoading: isSearchingVendors } = useGetVendors({
+    search: debouncedVendorSearchQuery,
+  });
+
+  // Branch fetch state (dependent on vendor)
+  const [branchSearchQuery, setBranchSearchQuery] = useState('');
+  const [debouncedBranchSearchQuery, setDebouncedBranchSearchQuery] = useState('');
+  const { data: branchesData, isLoading: isLoadingBranches } = useGetBranches({
+    vendorId: form.vendor,
+    search: debouncedBranchSearchQuery
+  });
 
   const { data: productsData } = useGetProducts({ search: productSearch, limit: 10 });
   const { data: categoriesData } = useGetProductCategories({ search: categorySearch, limit: 10 });
-  const { data: vendorsData } = useGetVendors({ search: vendorSearch, limit: 10 });
-  const { data: branchesData } = useGetBranches({ search: branchSearch, limit: 10 });
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedVendorSearchQuery(vendorSearchQuery);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [vendorSearchQuery]);
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedBranchSearchQuery(branchSearchQuery);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [branchSearchQuery]);
+
+  // Reset branch when vendor changes
+  React.useEffect(() => {
+    if (form.vendor) {
+      setForm(prev => ({ ...prev, branch: '' }));
+    }
+  }, [form.vendor]);
+
+  const vendors = (vendorsData as any)?.vendors || [];
+  const branches = (branchesData as any)?.branches || [];
 
   const validateTabNavigation = (targetKey: string) => {
     const targetTab = TABS.find(t => t.key === targetKey);
     if (!targetTab) return false;
     if (targetTab.step < currentStep) return true;
     
-    if (currentStep === 1) return !!form.name;
-    if (currentStep === 2) return form.discountValue > 0;
+    if (currentStep === 1) return true; // Vendor is optional for coupons (global)
+    if (currentStep === 2) return !!form.name;
+    if (currentStep === 3) return form.discountValue > 0;
     
     return true;
   };
@@ -167,7 +203,89 @@ const CreateCoupon: React.FC = () => {
   };
 
   const renderContent = () => {
+    const selectedVendor = vendors.find((v: IVendor) => v._id === form.vendor);
+    const selectedBranch = branches.find((b: IBranch) => b._id === form.branch);
+
     switch (activeTab) {
+      case 'vendor':
+        return (
+          <div className="space-y-6 animate-fadeIn">
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <label className="label">Search Vendor <span className="text-gray-400 font-normal ml-1">(Optional for Global Coupon)</span></label>
+                <div className="relative">
+                  <input type="text" value={vendorSearchQuery} onChange={e => setVendorSearchQuery(e.target.value)} className="input pr-10" placeholder="Type to search vendor..." />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    {isSearchingVendors ? <div className="animate-spin h-4 w-4 border-2 border-brand-primary border-t-transparent rounded-full" /> : <HiOutlineFilter className="text-gray-400" />}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-2 mb-4">
+                <button 
+                  type="button" 
+                  onClick={() => setForm({...form, vendor: '', branch: ''})}
+                  className={`px-4 py-2 text-sm rounded-xl border transition-all ${!form.vendor ? 'border-brand-primary bg-brand-primary/10 text-brand-primary font-bold' : 'border-gray-100 hover:border-gray-200'}`}
+                >
+                  Global Coupon (All Vendors)
+                </button>
+              </div>
+
+              {selectedVendor && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-brand-primary">
+                    <HiCheck className="w-4 h-4" />
+                    <span className="text-xs font-bold uppercase tracking-wider">Selected Vendor</span>
+                  </div>
+                  <div className="p-4 rounded-2xl border border-brand-primary bg-brand-primary/5 flex items-center gap-4 animate-fadeIn">
+                    <div className="h-10 w-10 rounded-xl bg-brand-primary text-white flex items-center justify-center font-bold">{selectedVendor.name[0]}</div>
+                    <span className="font-bold text-gray-900">{selectedVendor.name}</span>
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {vendors.map((v: IVendor) => (
+                  <button key={v._id} type="button" onClick={() => setForm({...form, vendor: v._id})} className={`p-4 rounded-2xl border transition-all flex items-center gap-4 text-left ${form.vendor === v._id ? 'border-brand-primary bg-brand-primary/5 shadow-sm' : 'border-gray-100 hover:border-brand-primary/30'}`}>
+                    <div className={`h-10 w-10 rounded-xl flex items-center justify-center font-bold ${form.vendor === v._id ? 'bg-brand-primary text-white' : 'bg-gray-100 text-brand-primary'}`}>{v.name[0]}</div>
+                    <span className="font-semibold text-gray-900 truncate">{v.name}</span>
+                  </button>
+                ))}
+              </div>
+
+              {form.vendor && (
+                <div className="pt-6 border-t border-gray-100 space-y-4 animate-fadeIn">
+                  <label className="label">Select Branch <span className="text-gray-400 font-normal ml-1">(Optional for All Branches)</span></label>
+                  
+                  <div className="flex gap-2 mb-4">
+                    <button 
+                      type="button" 
+                      onClick={() => setForm({...form, branch: ''})}
+                      className={`px-4 py-2 text-sm rounded-xl border transition-all ${!form.branch ? 'border-brand-primary bg-brand-primary/10 text-brand-primary font-bold' : 'border-gray-100 hover:border-gray-200'}`}
+                    >
+                      All Branches
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {isLoadingBranches ? (
+                      [...Array(2)].map((_, i) => (
+                        <div key={i} className="h-16 rounded-2xl bg-gray-100 animate-pulse" />
+                      ))
+                    ) : (
+                      branches.map((b: IBranch) => (
+                        <button key={b._id} type="button" onClick={() => setForm({...form, branch: b._id})} className={`p-4 rounded-2xl border transition-all flex items-center gap-4 text-left ${form.branch === b._id ? 'border-brand-primary bg-brand-primary/5 shadow-sm' : 'border-gray-100 hover:border-brand-primary/30'}`}>
+                          <div className={`h-10 w-10 rounded-xl flex items-center justify-center font-bold ${form.branch === b._id ? 'bg-brand-primary text-white' : 'bg-gray-100 text-brand-primary'}`}>{b.name[0]}</div>
+                          <span className="font-semibold text-gray-900 truncate">{b.name}</span>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        );
       case 'basic':
         return (
           <div className="space-y-6 animate-fadeIn">
@@ -339,72 +457,37 @@ const CreateCoupon: React.FC = () => {
             </div>
           </div>
         );
-      case 'scope':
-        return (
-          <div className="space-y-8 animate-fadeIn">
-            <div className="space-y-4">
-              <h3 className="text-sm font-bold text-gray-900 uppercase tracking-widest flex items-center gap-2">
-                <HiOutlineUsers className="text-brand-primary" /> Vendor Scope
-              </h3>
-              <div className="relative">
-                <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input type="text" placeholder="Search vendors..." value={vendorSearch} onChange={e => setVendorSearch(e.target.value)} className="input pl-10" />
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <button 
-                  type="button"
-                  onClick={() => setForm({...form, vendor: ''})}
-                  className={`p-3 text-sm rounded-xl border transition-all ${!form.vendor ? 'border-brand-primary bg-brand-primary/10 text-brand-primary font-bold' : 'border-gray-100 hover:border-gray-200'}`}
-                >
-                  All Vendors
-                </button>
-                {vendorsData?.vendors.map((v: IVendor) => (
-                  <button 
-                    key={v._id}
-                    type="button"
-                    onClick={() => setForm({...form, vendor: v._id})}
-                    className={`p-3 text-sm rounded-xl border transition-all truncate ${form.vendor === v._id ? 'border-brand-primary bg-brand-primary/10 text-brand-primary font-bold' : 'border-gray-100 hover:border-gray-200'}`}
-                  >
-                    {v.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-4 pt-6 border-t border-gray-100">
-              <h3 className="text-sm font-bold text-gray-900 uppercase tracking-widest flex items-center gap-2">
-                <HiOutlineOfficeBuilding className="text-brand-primary" /> Branch Scope
-              </h3>
-              <div className="relative">
-                <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input type="text" placeholder="Search branches..." value={branchSearch} onChange={e => setBranchSearch(e.target.value)} className="input pl-10" />
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <button 
-                  type="button"
-                  onClick={() => setForm({...form, branch: ''})}
-                  className={`p-3 text-sm rounded-xl border transition-all ${!form.branch ? 'border-brand-primary bg-brand-primary/10 text-brand-primary font-bold' : 'border-gray-100 hover:border-gray-200'}`}
-                >
-                  All Branches
-                </button>
-                {branchesData?.branches.map((b: IBranch) => (
-                  <button 
-                    key={b._id}
-                    type="button"
-                    onClick={() => setForm({...form, branch: b._id})}
-                    className={`p-3 text-sm rounded-xl border transition-all truncate ${form.branch === b._id ? 'border-brand-primary bg-brand-primary/10 text-brand-primary font-bold' : 'border-gray-100 hover:border-gray-200'}`}
-                  >
-                    {b.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        );
       case 'summary':
         return (
           <div className="space-y-8 animate-fadeIn">
-            {/* Step 1: Basic Info */}
+            {/* Step 1: Vendor & Branch Scope */}
+            <div className="bg-gray-50 rounded-3xl p-6 border border-gray-100 space-y-6">
+              <div className="flex items-center justify-between border-b border-gray-200 pb-4">
+                <div className="flex items-center gap-2 text-brand-primary">
+                  <HiOutlineOfficeBuilding size={20} />
+                  <h3 className="text-sm font-bold uppercase tracking-wider">Vendor & Branch Scope</h3>
+                </div>
+                <button type="button" onClick={() => handleTabChange('vendor')} className="p-2 hover:bg-brand-primary/10 rounded-full text-brand-primary transition-colors">
+                  <HiOutlinePencilAlt size={18} />
+                </button>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 ml-2">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">Vendor</span>
+                  <p className="text-sm font-semibold text-gray-900">
+                    {form.vendor ? selectedVendor?.name : 'Global (All Vendors)'}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">Branch</span>
+                  <p className="text-sm font-semibold text-gray-900">
+                    {form.branch ? selectedBranch?.name : 'Global (All Branches)'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Step 2: Basic Info */}
             <div className="bg-gray-50 rounded-3xl p-6 border border-gray-100 space-y-6">
               <div className="flex items-center justify-between border-b border-gray-200 pb-4">
                 <div className="flex items-center gap-2 text-brand-primary">
@@ -433,7 +516,7 @@ const CreateCoupon: React.FC = () => {
               </div>
             </div>
 
-            {/* Step 2: Discount Rules */}
+            {/* Step 3: Discount Rules */}
             <div className="bg-gray-50 rounded-3xl p-6 border border-gray-100 space-y-6">
               <div className="flex items-center justify-between border-b border-gray-200 pb-4">
                 <div className="flex items-center gap-2 text-brand-primary">
@@ -468,7 +551,7 @@ const CreateCoupon: React.FC = () => {
               </div>
             </div>
 
-            {/* Step 3: Limits */}
+            {/* Step 4: Limits */}
             <div className="bg-gray-50 rounded-3xl p-6 border border-gray-100 space-y-6">
               <div className="flex items-center justify-between border-b border-gray-200 pb-4">
                 <div className="flex items-center gap-2 text-brand-primary">
@@ -495,7 +578,7 @@ const CreateCoupon: React.FC = () => {
               </div>
             </div>
 
-            {/* Step 4: Targets */}
+            {/* Step 5: Targets */}
             <div className="bg-gray-50 rounded-3xl p-6 border border-gray-100 space-y-6">
               <div className="flex items-center justify-between border-b border-gray-200 pb-4">
                 <div className="flex items-center gap-2 text-brand-primary">
@@ -519,33 +602,6 @@ const CreateCoupon: React.FC = () => {
                   <p className="text-xs text-gray-600">
                     {form.applicableCategories.length > 0 ? `${form.applicableCategories.length} Applicable` : 'All'} | 
                     {form.excludedCategories.length > 0 ? ` ${form.excludedCategories.length} Excluded` : ' None Excluded'}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Step 5: Scope */}
-            <div className="bg-gray-50 rounded-3xl p-6 border border-gray-100 space-y-6">
-              <div className="flex items-center justify-between border-b border-gray-200 pb-4">
-                <div className="flex items-center gap-2 text-brand-primary">
-                  <HiOutlineOfficeBuilding size={20} />
-                  <h3 className="text-sm font-bold uppercase tracking-wider">Scope</h3>
-                </div>
-                <button type="button" onClick={() => handleTabChange('scope')} className="p-2 hover:bg-brand-primary/10 rounded-full text-brand-primary transition-colors">
-                  <HiOutlinePencilAlt size={18} />
-                </button>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 ml-2">
-                <div className="space-y-1">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">Vendor</span>
-                  <p className="text-sm font-semibold text-gray-900">
-                    {form.vendor ? vendorsData?.vendors.find((v: IVendor) => v._id === form.vendor)?.name : 'Global (All Vendors)'}
-                  </p>
-                </div>
-                <div className="space-y-1">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">Branch</span>
-                  <p className="text-sm font-semibold text-gray-900">
-                    {form.branch ? branchesData?.branches.find((b: IBranch) => b._id === form.branch)?.name : 'Global (All Branches)'}
                   </p>
                 </div>
               </div>

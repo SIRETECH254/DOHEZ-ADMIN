@@ -4,6 +4,8 @@ import { HiOutlineEye } from 'react-icons/hi';
 import { FiSearch, FiFilter, FiList, FiAlertTriangle } from 'react-icons/fi';
 import { formatDistanceToNow, format, differenceInHours } from 'date-fns';
 import { useGetOrders } from '../../../tanstack/useOrders';
+import { useGetBranches } from '../../../tanstack/useBranches';
+import { useAuth } from '../../../contexts/AuthContext';
 import StatusBadge from '../../../components/ui/StatusBadge';
 import Pagination from '../../../components/ui/Pagination';
 import type { IOrder, IUser, IBranch } from '../../../types/api.types';
@@ -11,6 +13,7 @@ import { formatCurrency, getInitials } from '../../../utils';
 
 const OrderList: React.FC = () => {
   const navigate = useNavigate();
+  const { vendor, branch } = useAuth();
   
   // Search state with debounce
   const [searchTerm, setSearchTerm] = useState('');
@@ -19,6 +22,7 @@ const OrderList: React.FC = () => {
   // Filter state
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterPaymentStatus, setFilterPaymentStatus] = useState<string>('all');
+  const [filterBranch, setFilterBranch] = useState<string>('all');
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -36,6 +40,9 @@ const OrderList: React.FC = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
+  const { data: branchesData } = useGetBranches({ vendorId: vendor?._id });
+  const branches = branchesData?.branches || [];
+
   /**
    * Build API params
    */
@@ -44,6 +51,10 @@ const OrderList: React.FC = () => {
       page: currentPage,
       limit: itemsPerPage,
     };
+
+    if (vendor?._id) {
+      apiParams.vendor = vendor._id;
+    }
 
     if (debouncedSearch.trim()) {
       apiParams.q = debouncedSearch.trim();
@@ -57,8 +68,14 @@ const OrderList: React.FC = () => {
       apiParams.paymentStatus = filterPaymentStatus;
     }
 
+    if (branch?._id) {
+      apiParams.branch = branch._id;
+    } else if (filterBranch !== 'all') {
+      apiParams.branch = filterBranch;
+    }
+
     return apiParams;
-  }, [debouncedSearch, filterStatus, filterPaymentStatus, currentPage, itemsPerPage]);
+  }, [debouncedSearch, filterStatus, filterPaymentStatus, filterBranch, branch?._id, vendor?._id, currentPage, itemsPerPage]);
 
   const { data, isLoading, isError, error } = useGetOrders(params);
 
@@ -130,6 +147,24 @@ const OrderList: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap gap-2">
+            {!branch?._id && (
+              <div className="relative">
+                <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={16} />
+                <select
+                  value={filterBranch}
+                  onChange={(e) => {
+                    setFilterBranch(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="input-select pl-10"
+                >
+                  <option value="all">All Branches</option>
+                  {branches.map((branchItem: IBranch) => (
+                    <option key={branchItem._id} value={branchItem._id}>{branchItem.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
             {/* Status Filter */}
             <div className="relative">
               <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" size={16} />

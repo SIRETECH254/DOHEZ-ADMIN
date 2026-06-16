@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom'
 import { MdClose, MdLogout } from 'react-icons/md'
 import { NAV_ITEMS } from '../../constants/navigation'
 import { useAuth } from '../../contexts/AuthContext'
+import { hasAccess } from '../../utils/rbac'
 
 type SidebarProps = {
   isOpen: boolean
@@ -9,7 +10,7 @@ type SidebarProps = {
 }
 
 const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
-  const { logout } = useAuth()
+  const { logout, roles } = useAuth()
 
   // Shared sidebar content for desktop + mobile drawer.
   const content = (
@@ -28,7 +29,12 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
 
       {/* Primary navigation links */}
       <nav className="flex-1 space-y-1 overflow-y-auto pr-2">
-        {NAV_ITEMS.filter((item) => item.path !== '/profile' && item.path !== '/store').map((item) => {
+        {NAV_ITEMS.filter(
+          (item) =>
+            item.path !== '/profile' &&
+            item.path !== '/store' &&
+            hasAccess(roles, item.minRole)
+        ).map((item) => {
           const Icon = item.icon
           return (
             <NavLink
@@ -52,10 +58,14 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
       </nav>
 
       {/* Footer section: Store, Profile, and Logout */}
-      <div className="mt-auto bg-brand-primary/10 shadow-2xs px-4 py-4 -mx-4 -mb-6 ">
+      <div className="mt-auto bg-brand-primary/5 rounded-t-md shadow-md px-4 py-4 -mx-4 -mb-6 ">
         {/* Store and Profile links */}
         <div className="space-y-1 mb-3">
-          {NAV_ITEMS.filter((item) => item.path === '/profile' || item.path === '/store').map((item) => {
+          {NAV_ITEMS.filter(
+            (item) =>
+              (item.path === '/profile' || item.path === '/store') &&
+              hasAccess(roles, item.minRole)
+          ).map((item) => {
             const Icon = item.icon
             return (
               <NavLink

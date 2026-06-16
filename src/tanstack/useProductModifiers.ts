@@ -22,11 +22,11 @@ export const useCreateProductModifier = () => {
 };
 
 // Get product modifiers
-export const useGetProductModifiers = () => {
+export const useGetProductModifiers = (params?: any) => {
   return useQuery({
-    queryKey: ['productModifiers'],
+    queryKey: ['productModifiers', params],
     queryFn: async () => {
-      const response = await productModifierAPI.getProductModifiers();
+      const response = await productModifierAPI.getProductModifiers(params);
       return response.data.data;
     },
     staleTime: DEFAULT_STALE_TIME,
